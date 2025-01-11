@@ -39,9 +39,9 @@ export default function App() {
       
       <div id="about-me-section" className="about-me-section">
         <h1>About Me</h1>
-        <p>I'm a Computer Science student in my final year at the University of Oregon, with a strong passion for game development and AI. Currently focused on machine learning and artificial intelligence, I'm dedicated to constantly improving my approach to technology, embracing new tools and techniques to create more effective solutions.</p>
-        <p>I work on a range of projects, from game engines to real-world applications, blending technical skills with creative problem-solving. I enjoy automating workflows, optimizing systems, and tackling complex challenges.</p>
-        <p>Constantly learning and exploring new opportunities, I'm eager to continue growing and contributing to the field.</p>
+        <p>I'm a Computer Science student in my final year at the University of Oregon, with a strong passion for game development and AI. With a focus on machine learning and artificial intelligence, I'm dedicated to constantly improving my approach to technology, utilizing new tools and techniques to create more effective solutions.</p>
+        <p>I work on a range of projects, from game engines to practical applications, blending technical skills with creative problem-solving. I excel in automating workflows, enhancing system efficiency, and solving critical technical issues.</p>
+        <p>I will always consider myself a student of the field, constantly learning and seeking new opportunities. As I build on my experiences, I am eager to contribute to the tech field and explore what the future holds.</p>
       </div>
       
       <div id="skills-section" className="skills-container">
