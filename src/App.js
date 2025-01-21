@@ -182,6 +182,10 @@ export default function App() {
               <img src={`${process.env.PUBLIC_URL}/excel.png`} alt="Excel Logo" />
               <span>Excel</span>
             </div>
+            <div className="skill-item">
+              <img src={`${process.env.PUBLIC_URL}/photoshop.png`} alt="Photoshop Logo" />
+              <span>Photoshop</span>
+            </div>
           </div>
         </div>
       </div>
