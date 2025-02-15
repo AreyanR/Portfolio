@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Spline scene="https://prod.spline.design/CZbmzmYXlp3Sqo36/scene.splinecode"/>
+      <Spline scene="https://prod.spline.design/q8mLHhiY5G5Nczh7/scene.splinecode" />
       <div className="button-container">
         <button className="app-button" onClick={() => scrollToSection('about-me-section')}>About Me</button>
         <button className="app-button" onClick={() => scrollToSection('skills-section')}>Skills</button>
