@@ -42,7 +42,6 @@ export default function App() {
       <div id="about-me-section" className="about-me-section">
         <h1>About Me</h1>
         <p>I’m a recent Computer Science graduate from the University of Oregon with a strong passion for game development and AI. With a focus on machine learning and artificial intelligence, I’m committed to continuously evolving my approach to technology, using modern tools and techniques to develop impactful solutions.</p>
-        <p>My work spans a range of projects, from interactive simulations and gameplay systems to practical, real-world applications. I blend technical expertise with creative problem-solving to automate workflows, enhance system efficiency, and tackle complex challenges.</p>
         <p>I consider myself a lifelong student of the field. I'm always learning, growing, and looking for new opportunities to contribute and innovate in the tech space.</p>
       </div>
       
