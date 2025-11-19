@@ -554,7 +554,7 @@ export default function App() {
       </div>
       <div className="button-container">
         <button className="app-button" onClick={() => scrollToSection('about-me-section')}>About Me</button>
-        <button className="app-button" onClick={() => scrollToSection('projects-section')}>Projects</button>
+        <button className="app-button" onClick={() => scrollToSection('projects-carousel-section')}>Projects</button>
         <button className="app-button" onClick={() => scrollToSection('experience-section')}>Experience</button>
         <button className="app-button" onClick={() => scrollToSection('skills-section')}>Skills</button>
         <button className="app-button" onClick={() => scrollToSection('education-section')}>Education</button>
