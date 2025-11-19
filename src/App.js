@@ -935,7 +935,7 @@ export default function App() {
                 </div>
                 <ul className="space-y-4">
                   {[
-                    "[Increased participant engagement] through interactive task elements and clear visual feedback.",
+                    "[Increased participant engagement] through interactive task elements and visual feedback.",
                     "[Reduced researcher workload by ~80 percent] by automating setup and trial preparation.",
                     "[Improved measurement accuracy] using a calibrated pressure-pad pipeline for higher-resolution force input.",
                     "[Improved data reliability] across 15+ sessions through standardized timing and automated dataset generation.",
