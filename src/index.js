@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-// Initialize theme
+// Initialize theme 
 const savedTheme = localStorage.getItem('theme') || 'dark';
 if (savedTheme === 'dark') {
   document.documentElement.classList.add('dark');
