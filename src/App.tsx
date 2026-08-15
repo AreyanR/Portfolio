@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import AsciiEvolution, {
-	ASCII_EVOLUTION_DEFAULTS,
-} from "@/components/ui/ascii-evolution";
+import AsciiNameLoop, {
+	ASCII_NAME_LOOP_DEFAULTS,
+} from "@/components/ui/ascii-name-loop";
 import TerminalAbout from "./TerminalAbout";
 
 const NAV_ITEMS = [
@@ -94,12 +94,17 @@ export default function App() {
 				</div>
 			</nav>
 
-			{/* Hero — ASCII evolution */}
+			{/* Hero — name + randomized craft flyby every 15s */}
 			<section id="top" className="hero-wrapper relative w-full overflow-hidden">
-				<div className="hero-evolution absolute inset-0">
-					<AsciiEvolution
+				<div className="hero-evolution absolute inset-0 bg-black">
+					<AsciiNameLoop
 						className="h-full w-full"
-						config={ASCII_EVOLUTION_DEFAULTS}
+						config={{
+							...ASCII_NAME_LOOP_DEFAULTS,
+							showLabels: false,
+							beat: "current",
+							rotateCraft: true,
+						}}
 					/>
 				</div>
 			</section>
@@ -114,7 +119,7 @@ export default function App() {
 				<section
 					id="about"
 					ref={aboutRef}
-					className="mt-3 w-full max-w-[680px] sm:mt-4"
+					className="mt-1 w-full max-w-[680px] sm:mt-2"
 				>
 					<TerminalAbout active={aboutActive} />
 				</section>

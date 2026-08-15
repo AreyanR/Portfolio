@@ -1,11 +1,39 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+	ROCKET_STYLE_OPTIONS,
+	styledRocketFlyby,
+	type RocketStyleId,
+} from "@/components/ui/ascii-rockets";
 
-/**
- * Animation 1 — whale → monkey v2 → human → rocket → name.
- * (Portfolio :3002 uses this. Animation 2 is a separate component.)
- */
+export type { RocketStyleId } from "@/components/ui/ascii-rockets";
+export {
+	DEFAULT_ENABLED_PATHS,
+	FLIGHT_PATH_COUNT,
+	FLIGHT_PATH_OPTIONS,
+	ROCKET_STYLE_LOOKS,
+	ROCKET_STYLE_OPTIONS,
+	rocketStyleLook,
+	rocketStyleNEAt,
+	rocketStyleUprightAt,
+	styledRocketFlyby,
+} from "@/components/ui/ascii-rockets";
+
+/** Seconds between flyby starts (name + rocket loop). */
+export const ROCKET_FLYBY_PERIOD = 15;
+
+function styleHash(n: number): number {
+	const s = Math.sin(n * 91.7 + 19.3) * 43758.5453;
+	return s - Math.floor(s);
+}
+
+/** Pick a craft style from a flyby seed (stable for that pass). */
+export function pickRocketStyle(seed: number): RocketStyleId {
+	const n = ROCKET_STYLE_OPTIONS.length;
+	const i = Math.floor(styleHash(seed + 2.17) * n) % n;
+	return ROCKET_STYLE_OPTIONS[i]!.id;
+}
 
 type V2 = readonly [number, number];
 type Seg = readonly [V2, V2];
@@ -38,7 +66,7 @@ type PoseFn = (t: number, moving: number) => Seg[];
  * V2 whale — big almond body + horizontal fluke; same traveling-wave swim
  * that made the fish click, scaled for a cetacean silhouette.
  */
-function whaleAt(t: number, moving: number): Seg[] {
+export function whaleAt(t: number, moving: number): Seg[] {
 	const m = clamp(moving, 0, 1);
 	const phase = t * 5.4;
 	const bob = Math.sin(t * 2.1) * 0.025 * m;
@@ -200,6 +228,187 @@ function circleOutline(cx: number, cy: number, r: number, n = 10): Seg[] {
 			[cx + Math.cos(a1) * r, cy + Math.sin(a1) * r],
 		]);
 	}
+	return segs;
+}
+
+/**
+ * Chemotaxis-style cells — elongated amoebas with crawling pseudopods.
+ * Lab hold only (next to Lizard / Monkey / Running).
+ */
+function cellsAt(t: number, moving: number): Seg[] {
+	const m = clamp(moving, 0, 1);
+	const segs: Seg[] = [];
+
+	type CellSpec = {
+		x: number;
+		y: number;
+		scale: number;
+		heading: number;
+		phase: number;
+	};
+
+	// 4 separate crawlers, spaced so membranes never kiss
+	const specs: CellSpec[] = [
+		{ x: -0.48, y: 0.32, scale: 0.95, heading: 0.35, phase: 0.0 },
+		{ x: 0.5, y: 0.28, scale: 0.88, heading: -0.55, phase: 1.7 },
+		{ x: -0.4, y: -0.42, scale: 1.0, heading: 2.4, phase: 3.1 },
+		{ x: 0.46, y: -0.4, scale: 0.9, heading: -2.2, phase: 4.5 },
+	];
+
+	for (const c of specs) {
+		const crawl = t * 2.6 + c.phase;
+		const step = Math.sin(crawl);
+		const reach = Math.max(0, Math.sin(crawl + 0.4)); // leading pseudopod push
+
+		// Drift along heading (chemotaxis crawl)
+		const spd = 0.035 * m;
+		const cx = c.x + Math.cos(c.heading) * Math.sin(crawl * 0.55) * spd * 8;
+		const cy = c.y + Math.sin(c.heading) * Math.sin(crawl * 0.55) * spd * 8;
+		const S = c.scale;
+
+		// Body outline in local space: rear blunt, front pointed + pseudopods
+		// Angles around an elongated blob (nose at +x)
+		const lobes = [
+			{ a: 0.0, r: 0.38 + reach * 0.14 }, // leading tip
+			{ a: 0.35, r: 0.34 + reach * 0.1 }, // upper front pad
+			{ a: 0.85, r: 0.26 + step * 0.03 },
+			{ a: 1.35, r: 0.22 },
+			{ a: Math.PI, r: 0.2 - reach * 0.02 }, // rear
+			{ a: -1.35, r: 0.22 },
+			{ a: -0.85, r: 0.26 - step * 0.03 },
+			{ a: -0.35, r: 0.34 + reach * 0.08 }, // lower front pad
+		];
+
+		const localPts: V2[] = lobes.map(({ a, r }) => {
+			// Stretch along crawl axis so it reads as a cell, not a circle
+			const px = Math.cos(a) * r * 1.35;
+			const py = Math.sin(a) * r * 0.78;
+			return [px * S, py * S] as V2;
+		});
+
+		// Side pseudopod jiggle (chemotaxis sensing)
+		const uFinger: V2 = [
+			(0.22 + reach * 0.12) * S,
+			(0.28 + Math.sin(crawl * 1.4) * 0.06) * S,
+		];
+		const lFinger: V2 = [
+			(0.2 + reach * 0.1) * S,
+			(-0.26 - Math.cos(crawl * 1.3) * 0.05) * S,
+		];
+
+		const world = (p: V2): V2 => {
+			const [rx, ry] = rotate2(p, c.heading);
+			return [cx + rx, cy + ry];
+		};
+
+		const outline = [
+			localPts[0]!,
+			uFinger,
+			localPts[1]!,
+			localPts[2]!,
+			localPts[3]!,
+			localPts[4]!,
+			localPts[5]!,
+			localPts[6]!,
+			lFinger,
+			localPts[7]!,
+		];
+
+		for (let i = 0; i < outline.length; i++) {
+			const a = world(outline[i]!);
+			const b = world(outline[(i + 1) % outline.length]!);
+			segs.push([a, b]);
+		}
+
+		// Rear-biased nucleus (amoeba look)
+		const nucLocal: V2 = [-0.08 * S, Math.sin(crawl) * 0.03 * S];
+		const [nx, ny] = world(nucLocal);
+		segs.push(...circleOutline(nx, ny, 0.07 * S, 7));
+
+		// Tiny trailing bleb
+		const bleb = world([-0.28 * S, Math.sin(crawl + 1) * 0.04 * S]);
+		segs.push(...circleOutline(bleb[0], bleb[1], 0.035 * S, 5));
+	}
+
+	return segs;
+}
+
+/**
+ * Cells 2 — soft circular goo blobs drifting / orbiting unevenly.
+ * Lab hold only.
+ */
+function cells2At(t: number, moving: number): Seg[] {
+	const m = clamp(moving, 0, 1);
+	const segs: Seg[] = [];
+
+	type BlobSpec = {
+		orbitR: number;
+		baseAng: number;
+		angSpeed: number;
+		r: number;
+		phase: number;
+		wobble: number;
+	};
+
+	const blobs: BlobSpec[] = [
+		{ orbitR: 0.55, baseAng: 0.2, angSpeed: 0.55, r: 0.22, phase: 0.4, wobble: 0.08 },
+		{ orbitR: 0.7, baseAng: 2.1, angSpeed: -0.38, r: 0.26, phase: 1.3, wobble: 0.1 },
+		{ orbitR: 0.42, baseAng: 4.0, angSpeed: 0.72, r: 0.18, phase: 2.5, wobble: 0.07 },
+		{ orbitR: 0.85, baseAng: 5.2, angSpeed: -0.28, r: 0.24, phase: 3.6, wobble: 0.09 },
+	];
+
+	for (const b of blobs) {
+		// Uneven orbit: radius breathes, angle speed isn't constant
+		const ang =
+			b.baseAng +
+			t * b.angSpeed +
+			Math.sin(t * 0.9 + b.phase) * 0.35 * m;
+		const rad =
+			b.orbitR +
+			Math.sin(t * 1.1 + b.phase * 1.3) * b.wobble * 1.4 * m +
+			Math.cos(t * 0.55 + b.phase) * b.wobble * m;
+		const cx = Math.cos(ang) * rad;
+		const cy = Math.sin(ang) * rad * 0.92;
+
+		const pulse = 1 + Math.sin(t * 2.4 + b.phase) * 0.08 * m;
+		const R = b.r * pulse;
+		const tumble = t * 0.55 + b.phase;
+
+		// Deform ↔ reform cycle: 0 = round circle, 1 = max goo squash
+		const cycle = (Math.sin(t * 1.35 + b.phase) * 0.5 + 0.5) * m;
+		const deformAmt = cycle * cycle * (3 - 2 * cycle); // smooth in/out
+
+		const n = 20;
+		for (let i = 0; i < n; i++) {
+			const a0 = (i / n) * Math.PI * 2;
+			const a1 = ((i + 1) / n) * Math.PI * 2;
+
+			const deform = (a: number) => {
+				const squash =
+					Math.sin(a * 2 + tumble) * 0.28 +
+					Math.sin(a * 3 - tumble * 1.3) * 0.2;
+				const stretch =
+					Math.sin(a + tumble * 0.7) * 0.16 +
+					Math.cos(a * 4 + t * 2.2 + b.phase) * 0.12;
+				const pinch = Math.sin(a * 5 + t * 1.7 + b.phase) * 0.1;
+				const messy = 1 + (squash + stretch + pinch) * deformAmt;
+				// Blend toward a clean circle when deformAmt → 0
+				return Math.max(0.4, lerp(1, messy, deformAmt));
+			};
+
+			segs.push([
+				[
+					cx + Math.cos(a0) * R * deform(a0),
+					cy + Math.sin(a0) * R * deform(a0),
+				],
+				[
+					cx + Math.cos(a1) * R * deform(a1),
+					cy + Math.sin(a1) * R * deform(a1),
+				],
+			]);
+		}
+	}
+
 	return segs;
 }
 
@@ -606,9 +815,13 @@ function carAt(t: number, moving: number): Seg[] {
 }
 
 export function rocketAt(t: number, moving: number): Seg[] {
+	return rotateSegs(rocketUprightAt(t, moving), -Math.PI / 4.2);
+}
+
+/** Upright rocket (nose +y) — Anim 2 blast-off. */
+export function rocketUprightAt(t: number, moving: number): Seg[] {
 	const sway = Math.sin(t * 3) * 0.01 * clamp(moving, 0, 1);
-	// Built pointing up, then tipped toward northeast (~40°).
-	const upright: Seg[] = [
+	return [
 		[[0.0 + sway, -0.55], [0.0 + sway, 0.45]],
 		[[-0.16 + sway, -0.45], [-0.16 + sway, 0.32]],
 		[[0.16 + sway, -0.45], [0.16 + sway, 0.32]],
@@ -623,7 +836,6 @@ export function rocketAt(t: number, moving: number): Seg[] {
 		[[-0.16 + sway, -0.32], [-0.38 + sway, -0.52]],
 		[[0.16 + sway, -0.32], [0.38 + sway, -0.52]],
 	];
-	return rotateSegs(upright, -Math.PI / 4.2);
 }
 
 export function scaleSegs(segs: Seg[], s: number): Seg[] {
@@ -634,7 +846,7 @@ export function scaleSegs(segs: Seg[], s: number): Seg[] {
 }
 
 /** Centered moon disc — modest size. */
-function moonDisc(): Seg[] {
+export function moonDisc(): Seg[] {
 	const moonC: V2 = [0, 0];
 	const R = 0.52;
 	return [
@@ -645,20 +857,13 @@ function moonDisc(): Seg[] {
 	];
 }
 
-/** Exact NE fly path shared by moon + name finales. */
+/** Exact NE fly path shared by moon + name finales (classic path). */
 function rocketFlyby(
 	t: number,
 	fly01: number,
+	style: RocketStyleId = "classic",
 ): { segs: Seg[]; exhaustAt: V2 | null; rx: number; ry: number } {
-	// Fully off-screen before hide — no leftover rocket at cut
-	if (fly01 <= 0.02 || fly01 >= 0.97) {
-		return { segs: [], exhaustAt: null, rx: 0, ry: 0 };
-	}
-	const rx = -2.05 + fly01 * 4.35;
-	const ry = -1.55 + fly01 * 3.25;
-	const rocket = translateSegs(scaleSegs(rocketAt(t, 1), 0.34), rx, ry);
-	const exhaustAt: V2 = [rx - 0.14, ry - 0.14];
-	return { segs: rocket, exhaustAt, rx, ry };
+	return styledRocketFlyby(t, fly01, style, 0, 0);
 }
 
 /** Same fly timing for moon + name: in immediately, fully gone by ~88%. */
@@ -976,39 +1181,105 @@ function nameReveal(progress: number): Seg[] {
 
 /**
  * Name + rocket flyby (rocket drawn behind via backSegs + AABB cull).
- * fly01 < 0 → hold-loop; else same NE path as the moon pass.
+ * fly01 < 0 → hold-loop (~every ROCKET_FLYBY_PERIOD) with randomized path each pass.
  * reveal 0→1 = soft letter draw-in (1 = full name).
  */
 export function nameScene(
 	t: number,
 	fly01 = -1,
 	reveal = 1,
+	rocketStyle: RocketStyleId = "classic",
+	pathSeedOverride?: number,
+	opts?: {
+		craftScale?: number;
+		pathIndex?: number;
+		allowedPaths?: readonly number[];
+		/** New craft style each flyby (from path seed). */
+		rotateCraft?: boolean;
+	},
 ): {
 	segs: Seg[];
 	backSegs: Seg[];
 	exhaustAt: V2 | null;
+	exhaustDir: V2;
 	rx: number;
 	ry: number;
+	pathIndex: number;
+	rocketStyle: RocketStyleId;
 } {
 	const name = nameReveal(reveal);
+	const emptyDir: V2 = [-Math.SQRT1_2, -Math.SQRT1_2];
 	let fly = fly01;
+	let pathSeed = pathSeedOverride ?? 0;
 	if (fly < 0) {
-		const cyc = ((t * 0.22) % 1 + 1) % 1;
-		if (cyc < 0.08 || cyc > 0.82) {
-			return { segs: name, backSegs: [], exhaustAt: null, rx: 0, ry: 0 };
+		// Occasional pass: period between starts, ~5s on-screen
+		const PERIOD = ROCKET_FLYBY_PERIOD;
+		const FLY_DUR = 5;
+		const phase = ((t % PERIOD) + PERIOD) % PERIOD;
+		pathSeed = pathSeedOverride ?? Math.floor(t / PERIOD);
+		if (phase >= FLY_DUR) {
+			return {
+				segs: name,
+				backSegs: [],
+				exhaustAt: null,
+				exhaustDir: emptyDir,
+				rx: 0,
+				ry: 0,
+				pathIndex: 0,
+				rocketStyle,
+			};
 		}
-		fly = (cyc - 0.08) / 0.74;
+		fly = flyProgress(phase / FLY_DUR);
 	}
-	if (reveal < 0.72 || fly <= 0) {
-		return { segs: name, backSegs: [], exhaustAt: null, rx: 0, ry: 0 };
+	if (fly <= 0) {
+		return {
+			segs: name,
+			backSegs: [],
+			exhaustAt: null,
+			exhaustDir: emptyDir,
+			rx: 0,
+			ry: 0,
+			pathIndex: 0,
+			rocketStyle,
+		};
 	}
-	const flyby = rocketFlyby(t, fly);
+	// Wait for name to mostly appear before craft (skip when reveal=0 = ship-only)
+	if (reveal > 0 && reveal < 0.72) {
+		return {
+			segs: name,
+			backSegs: [],
+			exhaustAt: null,
+			exhaustDir: emptyDir,
+			rx: 0,
+			ry: 0,
+			pathIndex: 0,
+			rocketStyle,
+		};
+	}
+	const style = opts?.rotateCraft
+		? pickRocketStyle(pathSeed)
+		: rocketStyle;
+	const forcedPath =
+		opts?.pathIndex !== undefined && opts.pathIndex >= 0
+			? opts.pathIndex
+			: -1;
+	const flyby = styledRocketFlyby(
+		t,
+		fly,
+		style,
+		forcedPath,
+		pathSeed,
+		{ scale: opts?.craftScale, allowedPaths: opts?.allowedPaths },
+	);
 	return {
 		segs: name,
 		backSegs: flyby.segs,
 		exhaustAt: flyby.exhaustAt,
+		exhaustDir: flyby.exhaustDir,
 		rx: flyby.rx,
 		ry: flyby.ry,
+		pathIndex: flyby.pathIndex,
+		rocketStyle: style,
 	};
 }
 
@@ -1031,6 +1302,8 @@ const STAGES: { name: string; pose: PoseFn }[] = [
 	{ name: "Lizard", pose: lizardAt },
 	{ name: "Monkey", pose: monkeyAt },
 	{ name: "Running", pose: runningAt },
+	{ name: "Cells", pose: cellsAt },
+	{ name: "Cells 2", pose: cells2At },
 ];
 
 const STAGE_COUNT = STAGES.length;
