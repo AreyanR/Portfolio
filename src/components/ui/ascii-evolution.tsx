@@ -752,68 +752,6 @@ export function runningAt(t: number, moving: number): Seg[] {
 	];
 }
 
-/**
- * Side-view hatchback / sedan — long hood, raked windshield, cabin, trunk,
- * round tires. Reads as a car, not a rover.
- */
-function carAt(t: number, moving: number): Seg[] {
-	const m = clamp(moving, 0, 1);
-	const spin = t * 10 * m;
-	const y = Math.sin(t * 14) * 0.005 * m;
-
-	function tire(cx: number, cy: number): Seg[] {
-		const r = 0.15;
-		const hub = 0.05;
-		const a0 = spin;
-		return [
-			...circleOutline(cx, cy, r, 10),
-			...circleOutline(cx, cy, hub, 6),
-			[
-				[cx + Math.cos(a0) * r * 0.85, cy + Math.sin(a0) * r * 0.85],
-				[cx - Math.cos(a0) * r * 0.85, cy - Math.sin(a0) * r * 0.85],
-			],
-		];
-	}
-
-	// Ground line of body sits just above tire tops
-	const bl = -0.12 + y; // body lower
-	const wl = 0.08 + y; // waist / beltline
-	const rt = 0.36 + y; // roof
-
-	return [
-		// undercarriage / rocker (bumper to bumper)
-		[[-0.62, bl] as V2, [0.7, bl] as V2],
-		// rear bumper up
-		[[-0.62, bl] as V2, [-0.68, -0.02 + y] as V2],
-		[[-0.68, -0.02 + y] as V2, [-0.55, wl] as V2],
-		// trunk → C-pillar → roof
-		[[-0.55, wl] as V2, [-0.28, wl] as V2],
-		[[-0.28, wl] as V2, [-0.18, rt] as V2],
-		[[-0.18, rt] as V2, [0.2, rt] as V2],
-		// A-pillar / windshield rake
-		[[0.2, rt] as V2, [0.42, wl] as V2],
-		// hood
-		[[0.42, wl] as V2, [0.72, 0.02 + y] as V2],
-		// nose / grille
-		[[0.72, 0.02 + y] as V2, [0.78, -0.04 + y] as V2],
-		[[0.78, -0.04 + y] as V2, [0.7, bl] as V2],
-		// beltline through doors
-		[[-0.28, wl] as V2, [0.42, wl] as V2],
-		// side window
-		[[-0.12, 0.14 + y] as V2, [0.28, 0.14 + y] as V2],
-		[[0.28, 0.14 + y] as V2, [0.14, 0.32 + y] as V2],
-		[[-0.1, 0.32 + y] as V2, [0.14, 0.32 + y] as V2],
-		[[-0.12, 0.14 + y] as V2, [-0.1, 0.32 + y] as V2],
-		// door seam
-		[[0.05, bl] as V2, [0.05, wl] as V2],
-		// headlight
-		[[0.7, 0.0 + y] as V2, [0.76, 0.0 + y] as V2],
-		// wheels well clear of body
-		...tire(-0.34, -0.28 + y),
-		...tire(0.4, -0.28 + y),
-	];
-}
-
 export function rocketAt(t: number, moving: number): Seg[] {
 	return rotateSegs(rocketUprightAt(t, moving), -Math.PI / 4.2);
 }
@@ -1180,6 +1118,94 @@ function nameReveal(progress: number): Seg[] {
 }
 
 /**
+ * Subtle live idle variants — amt 0→1 fades motion in after reveal.
+ */
+export type NameIdleId = "none" | "idle1" | "idle2" | "idle3" | "idle4";
+
+export const NAME_IDLE_OPTIONS: { id: NameIdleId; label: string }[] = [
+	{ id: "none", label: "None" },
+	{ id: "idle1", label: "Idle 1 · wave float" },
+	{ id: "idle2", label: "Idle 2 · breathe" },
+	{ id: "idle3", label: "Idle 3 · soft bob" },
+	{ id: "idle4", label: "Idle 4 · ripple" },
+];
+
+function nameIdle(
+	segs: Seg[],
+	t: number,
+	amt: number,
+	style: NameIdleId = "idle4",
+): Seg[] {
+	const a = clamp(amt, 0, 1);
+	if (style === "none" || a < 0.01 || !segs.length) return segs;
+
+	if (style === "idle2") {
+		// Uniform scale pulse from origin
+		const s = 1 + Math.sin(t * 0.72) * 0.02 * a;
+		return segs.map(([p0, p1]) => [
+			[p0[0] * s, p0[1] * s] as V2,
+			[p1[0] * s, p1[1] * s] as V2,
+		]);
+	}
+
+	if (style === "idle3") {
+		// Clean vertical bob only
+		const bob = Math.sin(t * 0.65) * 0.028 * a;
+		return segs.map(([p0, p1]) => [
+			[p0[0], p0[1] + bob] as V2,
+			[p1[0], p1[1] + bob] as V2,
+		]);
+	}
+
+	if (style === "idle4") {
+		// Traveling ripple L→R across the name
+		return segs.map(([p0, p1]) => {
+			const r0 = Math.sin(t * 1.6 - p0[0] * 3.2) * 0.02 * a;
+			const r1 = Math.sin(t * 1.6 - p1[0] * 3.2) * 0.02 * a;
+			const x0 = Math.sin(t * 0.9 + p0[0]) * 0.006 * a;
+			const x1 = Math.sin(t * 0.9 + p1[0]) * 0.006 * a;
+			return [
+				[p0[0] + x0, p0[1] + r0] as V2,
+				[p1[0] + x1, p1[1] + r1] as V2,
+			];
+		});
+	}
+
+	// idle1 — soft float + letter wave
+	const breathe = Math.sin(t * 0.9) * 0.022 * a;
+	const sway = Math.sin(t * 0.52 + 0.8) * 0.014 * a;
+	return segs.map(([p0, p1]) => {
+		const w0 = Math.sin(t * 1.15 + p0[0] * 2.4) * 0.012 * a;
+		const w1 = Math.sin(t * 1.15 + p1[0] * 2.4) * 0.012 * a;
+		return [
+			[p0[0] + sway, p0[1] + breathe + w0] as V2,
+			[p1[0] + sway, p1[1] + breathe + w1] as V2,
+		];
+	});
+}
+
+/** Brightness modulation paired with each idle (1 = neutral). */
+export function nameIdleGlow(
+	t: number,
+	nameForm: number,
+	style: NameIdleId,
+): number {
+	const form = Math.pow(clamp(nameForm, 0, 1), 2);
+	if (style === "none" || form < 0.05) return 1;
+	switch (style) {
+		case "idle2":
+			return 1 + 0.055 * Math.sin(t * 0.72) * form;
+		case "idle3":
+			return 1 + 0.028 * Math.sin(t * 0.65) * form;
+		case "idle4":
+			return 1 + 0.05 * Math.sin(t * 1.6) * form;
+		case "idle1":
+		default:
+			return 1 + 0.045 * Math.sin(t * 0.95) * form;
+	}
+}
+
+/**
  * Name + rocket flyby (rocket drawn behind via backSegs + AABB cull).
  * fly01 < 0 → hold-loop (~every ROCKET_FLYBY_PERIOD) with randomized path each pass.
  * reveal 0→1 = soft letter draw-in (1 = full name).
@@ -1196,6 +1222,8 @@ export function nameScene(
 		allowedPaths?: readonly number[];
 		/** New craft style each flyby (from path seed). */
 		rotateCraft?: boolean;
+		/** Name idle motion after reveal. */
+		idleStyle?: NameIdleId;
 	},
 ): {
 	segs: Seg[];
@@ -1207,7 +1235,13 @@ export function nameScene(
 	pathIndex: number;
 	rocketStyle: RocketStyleId;
 } {
-	const name = nameReveal(reveal);
+	const idleAmt = smoothstep(0.82, 1, reveal);
+	const name = nameIdle(
+		nameReveal(reveal),
+		t,
+		idleAmt,
+		opts?.idleStyle ?? "idle4",
+	);
 	const emptyDir: V2 = [-Math.SQRT1_2, -Math.SQRT1_2];
 	let fly = fly01;
 	let pathSeed = pathSeedOverride ?? 0;
@@ -1663,7 +1697,7 @@ export default function AsciiEvolution({
 				segs,
 				backSegs = [],
 				stageIndex,
-				lift,
+				lift: _lift,
 				space,
 				label,
 				viewY,

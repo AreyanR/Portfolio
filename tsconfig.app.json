@@ -7,6 +7,7 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -26,5 +27,13 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/playground",
+    "src/AsciiVitruvian.tsx",
+    "src/components/BirdsBackground.tsx",
+    "src/components/ui/ascii-evolution-2.tsx",
+    "src/components/ui/ascii-evolution-3.tsx",
+    "src/components/ui/ascii-vitruvian.tsx"
+  ]
 }

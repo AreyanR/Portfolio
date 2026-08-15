@@ -2,12 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import AsciiNameLoop, {
 	ASCII_NAME_LOOP_DEFAULTS,
 } from "@/components/ui/ascii-name-loop";
+import PageStars from "@/components/PageStars";
+import BackToTop from "@/components/BackToTop";
+import ProjectsCarousel from "@/components/ProjectsCarousel";
+import {
+	ContactSection,
+	EducationSection,
+	ExperienceSection,
+	SkillsSection,
+} from "@/components/SiteSections";
 import TerminalAbout from "./TerminalAbout";
 
 const NAV_ITEMS = [
 	{ label: "About", href: "#about" },
-	{ label: "Statistics", href: "#statistics" },
+	{ label: "Projects", href: "#projects" },
+	{ label: "Activity", href: "#activity" },
 	{ label: "Experience", href: "#experience" },
+	{ label: "Education", href: "#education" },
 	{ label: "Skills", href: "#skills" },
 	{ label: "Contact", href: "#contact" },
 ];
@@ -77,13 +88,15 @@ export default function App() {
 
 	return (
 		<div
-			className="min-h-screen text-white"
+			className="relative min-h-screen text-white"
 			style={{
 				backgroundColor: "#000000",
 				backgroundImage: "linear-gradient(#000000, #000000)",
 			}}
 		>
-			{/* liquid-glass top bar */}
+			<PageStars />
+			<BackToTop />
+
 			<nav className="micro-nav" aria-label="Primary">
 				<div className="nav-shell liquid-glass">
 					{NAV_ITEMS.map((item) => (
@@ -94,9 +107,11 @@ export default function App() {
 				</div>
 			</nav>
 
-			{/* Hero — name + randomized craft flyby every 15s */}
-			<section id="top" className="hero-wrapper relative w-full overflow-hidden">
-				<div className="hero-evolution absolute inset-0 bg-black">
+			<section
+				id="top"
+				className="hero-wrapper relative z-[1] w-full overflow-hidden bg-transparent"
+			>
+				<div className="hero-evolution absolute inset-0 bg-transparent">
 					<AsciiNameLoop
 						className="h-full w-full"
 						config={{
@@ -104,18 +119,18 @@ export default function App() {
 							showLabels: false,
 							beat: "current",
 							rotateCraft: true,
+							figureScale: 0.36,
+							figureFit: "height",
+							viewY: 0.5,
+							showStars: true,
+							transparentBg: true,
+							colorStar: "rgba(255,255,255,0.26)",
 						}}
 					/>
 				</div>
 			</section>
 
-			<main
-				className="relative z-10 flex min-h-screen flex-col items-center px-5 pb-16 sm:px-6 sm:pb-20"
-				style={{
-					backgroundColor: "#000000",
-					backgroundImage: "linear-gradient(#000000, #000000)",
-				}}
-			>
+			<main className="relative z-10 flex min-h-screen flex-col items-center bg-transparent px-5 pb-16 sm:px-6 sm:pb-20">
 				<section
 					id="about"
 					ref={aboutRef}
@@ -124,8 +139,12 @@ export default function App() {
 					<TerminalAbout active={aboutActive} />
 				</section>
 
-				{/* Activity — contributions only */}
-				<section id="statistics" className="mt-20 w-full max-w-[960px] sm:mt-24">
+				<ProjectsCarousel username={GITHUB_USER} />
+
+				<section
+					id="activity"
+					className="mt-20 w-full max-w-[960px] sm:mt-24"
+				>
 					<div className="stats-console overflow-x-auto rounded-xl border border-white/[0.08] bg-black">
 						<div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] px-4 py-2.5 sm:px-5">
 							<span className="font-mono text-[11px] tracking-[0.14em] text-white/55 uppercase">
@@ -182,6 +201,11 @@ export default function App() {
 						</div>
 					</div>
 				</section>
+
+				<ExperienceSection />
+				<EducationSection />
+				<SkillsSection />
+				<ContactSection />
 			</main>
 		</div>
 	);

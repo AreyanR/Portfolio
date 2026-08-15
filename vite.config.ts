@@ -6,23 +6,27 @@ import tailwindcss from "@tailwindcss/vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
 	plugins: [react(), tailwindcss()],
+	base: command === "build" ? "/Portfolio/" : "/",
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
 	server: {
-		port: 3002,
+		port: 3001,
+		strictPort: true,
+	},
+	preview: {
+		port: 3001,
 		strictPort: true,
 	},
 	build: {
 		rollupOptions: {
 			input: {
 				main: path.resolve(__dirname, "index.html"),
-				playground: path.resolve(__dirname, "playground.html"),
 			},
 		},
 	},
-});
+}));

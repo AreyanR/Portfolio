@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ASCII lab / experiments — keep local, never publish
+playground.html
+src/playground/
+src/components/ui/ascii-evolution-2.tsx
+src/components/ui/ascii-evolution-3.tsx
+src/components/ui/ascii-vitruvian.tsx
+src/AsciiVitruvian.tsx
+src/components/BirdsBackground.tsx

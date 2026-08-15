@@ -9,14 +9,16 @@
  */
 
 import { useEffect, useRef } from "react";
-import { flyProgress, nameScene } from "@/components/ui/ascii-evolution";
+import { flyProgress, nameIdleGlow, nameScene } from "@/components/ui/ascii-evolution";
+import type { NameIdleId } from "@/components/ui/ascii-evolution";
 import {
 	DEFAULT_ENABLED_PATHS,
 	rocketStyleLook,
 	type RocketStyleId,
 } from "@/components/ui/ascii-rockets";
 
-type V2 = readonly [number, number];
+export type { NameIdleId } from "@/components/ui/ascii-evolution";
+export { NAME_IDLE_OPTIONS } from "@/components/ui/ascii-evolution";
 
 const clamp = (x: number, lo: number, hi: number) =>
 	Math.min(hi, Math.max(lo, x));
@@ -63,6 +65,13 @@ export type AsciiNameLoopConfig = {
 	speed: number;
 	figureScale: number;
 	density: number;
+	/**
+	 * height — lab style (scales with canvas height).
+	 * fill — keep the name large in a shorter hero by sizing from width + height budget.
+	 */
+	figureFit: "height" | "fill";
+	/** Vertical anchor 0–1 (0.5 = center). Higher = name sits lower. */
+	viewY: number;
 	/** Which name beat to play. */
 	beat: NameBeat;
 	/** Craft style for flybys. */
@@ -73,11 +82,15 @@ export type AsciiNameLoopConfig = {
 	enabledPaths: number[];
 	/** Each flyby picks a random craft style (portfolio). */
 	rotateCraft: boolean;
+	/** Name idle animation while held. */
+	idleStyle: NameIdleId;
 	/** sequence / heroIntro: seconds to hold name (no rocket) before next beat. */
 	holdBeforeRocket: number;
 	showStars: boolean;
 	showExhaust: boolean;
 	showLabels: boolean;
+	/** Clear canvas to transparent so a page starfield shows through. */
+	transparentBg: boolean;
 	colorBright: string;
 	colorDim: string;
 	colorStar: string;
@@ -88,18 +101,22 @@ export const ASCII_NAME_LOOP_DEFAULTS: AsciiNameLoopConfig = {
 	speed: 1,
 	figureScale: 0.36,
 	density: 1,
+	figureFit: "height",
+	viewY: 0.5,
 	beat: "current",
 	rocketStyle: "classic",
 	shipOnly: false,
 	enabledPaths: [...DEFAULT_ENABLED_PATHS],
 	rotateCraft: false,
+	idleStyle: "idle4",
 	holdBeforeRocket: 14,
 	showStars: true,
 	showExhaust: true,
 	showLabels: true,
+	transparentBg: false,
 	colorBright: "rgba(255,255,255,0.96)",
 	colorDim: "rgba(255,255,255,0.35)",
-	colorStar: "rgba(255,255,255,0.42)",
+	colorStar: "rgba(255,255,255,0.28)",
 	colorExhaust: "rgba(251,146,60,0.85)",
 };
 
@@ -182,10 +199,13 @@ function resolveBeat(
 		const introEnd = introStart + INTRO_FLY;
 		let reveal = 1;
 		let nameForm = 1;
+		// Stars track the name draw — full by end of appear, no late dump
+		let starAmt = 1;
 		if (t < APPEAR_DUR) {
 			const p = t / APPEAR_DUR;
 			reveal = smoothstep(0, 1, p);
 			nameForm = smoothstep(0.05, 0.85, p);
+			starAmt = smoothstep(0.08, 0.92, p);
 		}
 		if (t < introStart) {
 			return {
@@ -195,7 +215,7 @@ function resolveBeat(
 				sceneT: t,
 				label: "Name appear",
 				stageIndex: 0,
-				starAmt: smoothstep(0.1, 1, Math.min(1, t / APPEAR_DUR)),
+				starAmt,
 			};
 		}
 		if (t < introEnd) {
@@ -206,8 +226,7 @@ function resolveBeat(
 				sceneT: t,
 				label: "Name · intro rocket",
 				stageIndex: 1,
-				starAmt: 1,
-				// Same pool as later flybys — not locked to classic
+				starAmt,
 				pathSeed: pathSeedBase,
 			};
 		}
@@ -467,7 +486,9 @@ export default function AsciiNameLoop({
 	useEffect(() => {
 		if (!canvasRef.current) return;
 		const view = canvasRef.current;
-		const ctx2d = view.getContext("2d", { alpha: false });
+		const ctx2d = view.getContext("2d", {
+			alpha: configRef.current.transparentBg,
+		});
 		if (!ctx2d) return;
 		const g = ctx2d;
 
@@ -577,6 +598,7 @@ export default function AsciiNameLoop({
 							? cfg.enabledPaths
 							: DEFAULT_ENABLED_PATHS,
 					rotateCraft: cfg.rotateCraft,
+					idleStyle: cfg.idleStyle,
 				},
 			);
 			const segs = cfg.shipOnly ? [] : scene.segs;
@@ -596,10 +618,16 @@ export default function AsciiNameLoop({
 			}
 
 			// Same camera as name mode so craft silhouette matches flybys-with-name
-			let S = H * cfg.figureScale * 1.38;
-			S = Math.min(S, (W * 0.42) / 1.35);
+			let S: number;
+			if (cfg.figureFit === "fill") {
+				// Big name in a shorter hero: prefer width, clamp so it still fits vertically
+				S = Math.min((W * 0.56) / 1.35, H * 0.82);
+			} else {
+				S = H * cfg.figureScale * 1.38;
+				S = Math.min(S, (W * 0.42) / 1.35);
+			}
 			const figCx = W * 0.5;
-			const figCy = H * 0.5;
+			const figCy = H * clamp(cfg.viewY, 0.2, 0.85);
 			const stroke = Math.max(cellH * 0.58, cellW * 0.85);
 
 			g.font = monoFont(fontSize);
@@ -623,16 +651,35 @@ export default function AsciiNameLoop({
 						if (d < dMin) dMin = d;
 					}
 					const brightI = 1 - smoothstep(0, stroke / S, dMin);
-					const nameI = brightI * Math.pow(clamp(nameForm, 0, 1), 0.75);
+					const idleGlow = nameIdleGlow(t, nameForm, cfg.idleStyle);
+					const nameI =
+						brightI * Math.pow(clamp(nameForm, 0, 1), 0.75) * idleGlow;
 
 					let starChar = " ";
 					if (cfg.showStars && starAmt > 0.02) {
-						const dens = 0.992 - 0.045 * starAmt;
-						const hs = hash(c, r);
-						if (hs > dens) {
-							const tw = 0.5 + 0.5 * Math.sin(t * 0.55 + hs * 40);
-							const lit = tw * starAmt;
-							starChar = lit > 0.82 ? "+" : lit > 0.18 ? "." : " ";
+						// Fewer, quieter stars than before — soft twinkle only
+						const row01 = rows > 1 ? r / (rows - 1) : 0;
+						const bottomFade = 1 - smoothstep(0.55, 0.92, row01);
+						if (bottomFade > 0.04) {
+							const dens = 0.978; // sparser (~half prior density)
+							const hs = hash(c, r);
+							if (hs > dens) {
+								const birth = (hs - dens) / (1 - dens);
+								const appear = smoothstep(
+									birth * 0.75,
+									Math.min(1, birth * 0.75 + 0.28),
+									starAmt,
+								);
+								const fade = appear * bottomFade;
+								if (fade > 0.02) {
+									// Gentle twinkle (was 0.5±0.5 — too flashy)
+									const tw =
+										0.72 + 0.28 * Math.sin(t * 0.4 + hs * 40);
+									const lit = tw * fade * 0.75;
+									starChar =
+										lit > 0.78 ? "+" : lit > 0.22 ? "." : " ";
+								}
+							}
 						}
 					}
 
@@ -724,8 +771,12 @@ export default function AsciiNameLoop({
 				exhaustRow[r] = exhaust;
 			}
 
-			g.fillStyle = "#000";
-			g.fillRect(0, 0, W, H);
+			if (cfg.transparentBg) {
+				g.clearRect(0, 0, W, H);
+			} else {
+				g.fillStyle = "#000";
+				g.fillRect(0, 0, W, H);
+			}
 			const drawLayer = (color: string, rowsText: string[]) => {
 				g.fillStyle = color;
 				g.font = monoFont(fontSize);
@@ -781,7 +832,7 @@ export default function AsciiNameLoop({
 				display: "block",
 				width: "100%",
 				height: "100%",
-				background: "#000",
+				background: config?.transparentBg ? "transparent" : "#000",
 			}}
 		/>
 	);
