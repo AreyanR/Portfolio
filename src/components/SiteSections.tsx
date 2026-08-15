@@ -295,7 +295,7 @@ export function SkillsSection() {
 								<li key={item.name}>
 									<span className="skills-tag">
 										<img
-											src={`/skills/${item.img}`}
+											src={`${import.meta.env.BASE_URL}skills/${item.img}`}
 											alt=""
 											loading="lazy"
 										/>
