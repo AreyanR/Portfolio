@@ -147,8 +147,8 @@ export default function App() {
 				>
 					<div className="stats-console overflow-x-auto rounded-xl border border-white/[0.08] bg-black">
 						<div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] px-4 py-2.5 sm:px-5">
-							<span className="font-mono text-[11px] tracking-[0.14em] text-white/55 uppercase">
-								Activity
+							<span className="font-mono text-[12px] tracking-normal text-white/55">
+								<span className="text-white/30">~/</span>activity
 							</span>
 							<span className="font-mono text-[11px] text-white/40">
 								GitHub · last 12 months

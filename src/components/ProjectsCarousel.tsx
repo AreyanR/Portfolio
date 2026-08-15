@@ -209,8 +209,8 @@ export default function ProjectsCarousel({
 	return (
 		<section id="projects" className="mt-20 w-full max-w-[960px] sm:mt-24">
 			<div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-				<p className="font-mono text-[11px] tracking-[0.14em] text-white/40 uppercase">
-					Projects
+				<p className="font-mono text-[12px] tracking-normal text-white/45">
+					<span className="text-white/25">~/</span>projects
 				</p>
 				<a
 					href={`https://github.com/${username}`}

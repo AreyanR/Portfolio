@@ -8,8 +8,8 @@ type Line =
 	| { type: "out"; text: string };
 
 const LINES: Line[] = [
-	{ type: "cmd", text: "cd ~/Desktop/portfolio", cwd: "~" },
-	{ type: "cmd", text: "cat aboutme.md", cwd: "~/Desktop/portfolio" },
+	{ type: "cmd", text: "cd ~/portfolio", cwd: "~" },
+	{ type: "cmd", text: "cat aboutme.md", cwd: "~/portfolio" },
 	{ type: "out", text: ABOUT_TEXT },
 ];
 
@@ -143,7 +143,7 @@ export default function TerminalAbout({ active }: Props) {
 				</div>
 				<div className="pointer-events-none absolute inset-0 flex items-center justify-center px-14">
 					<span className="truncate font-mono text-[13px] tracking-[-0.01em] text-white/70 sm:text-[14px]">
-						About Me
+						~/areyan — zsh
 					</span>
 				</div>
 			</div>
@@ -170,7 +170,7 @@ export default function TerminalAbout({ active }: Props) {
 							visible.lineIndex === LINES.length - 1) ||
 						reduced ? (
 							<p className="mt-1">
-								<Prompt cwd="~/Desktop/portfolio" />
+								<Prompt cwd="~/portfolio" />
 								<span className="caret" aria-hidden="true" />
 							</p>
 						) : null}

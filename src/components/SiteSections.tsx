@@ -185,7 +185,8 @@ const SKILL_GROUPS: { title: string; items: { name: string; img: string }[] }[] 
 
 function SectionLabel({ children }: { children: string }) {
 	return (
-		<p className="font-mono text-[11px] tracking-[0.14em] text-white/40 uppercase">
+		<p className="font-mono text-[12px] tracking-normal text-white/45">
+			<span className="text-white/25">~/</span>
 			{children}
 		</p>
 	);
@@ -243,7 +244,7 @@ function JobBlock({ job }: { job: Job }) {
 export function ExperienceSection() {
 	return (
 		<section id="experience" className="mt-20 w-full max-w-[920px] sm:mt-24">
-			<SectionLabel>Experience</SectionLabel>
+			<SectionLabel>experience</SectionLabel>
 			<div className="exp-stack mt-6">
 				{JOBS.map((job) => (
 					<JobBlock key={job.id} job={job} />
@@ -256,7 +257,7 @@ export function ExperienceSection() {
 export function EducationSection() {
 	return (
 		<section id="education" className="mt-20 w-full max-w-[920px] sm:mt-24">
-			<SectionLabel>Education</SectionLabel>
+			<SectionLabel>education</SectionLabel>
 			<ol className="edu-timeline mt-6">
 				{EDUCATION.map((item, i) => (
 					<li
@@ -284,7 +285,7 @@ export function EducationSection() {
 export function SkillsSection() {
 	return (
 		<section id="skills" className="mt-20 w-full max-w-[920px] sm:mt-24">
-			<SectionLabel>Skills</SectionLabel>
+			<SectionLabel>skills</SectionLabel>
 			<div className="skills-board mt-6">
 				{SKILL_GROUPS.map((group) => (
 					<div key={group.title} className="skills-row">
@@ -313,7 +314,7 @@ export function SkillsSection() {
 export function ContactSection() {
 	return (
 		<section id="contact" className="mt-20 w-full max-w-[920px] pb-10 text-center sm:mt-24">
-			<SectionLabel>Contact</SectionLabel>
+			<SectionLabel>contact</SectionLabel>
 			<div className="mt-8 flex items-center justify-center gap-8">
 				<a
 					href="https://github.com/AreyanR"
