@@ -143,7 +143,7 @@ export default function TerminalAbout({ active }: Props) {
 				</div>
 				<div className="pointer-events-none absolute inset-0 flex items-center justify-center px-14">
 					<span className="truncate font-mono text-[13px] tracking-[-0.01em] text-white/70 sm:text-[14px]">
-						~/areyan — zsh
+						~/areyanr — zsh
 					</span>
 				</div>
 			</div>
