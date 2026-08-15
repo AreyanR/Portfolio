@@ -166,6 +166,7 @@ const SKILL_GROUPS: { title: string; items: { name: string; img: string }[] }[] 
 			items: [
 				{ name: "Unity", img: "unity.png" },
 				{ name: "Unreal Engine", img: "ue.png" },
+				{ name: "RealityKit", img: "realitykit.png" },
 				{ name: "PsychoPy", img: "psychopy.png" },
 			],
 		},
