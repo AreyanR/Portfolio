@@ -37,6 +37,39 @@ function weekAlignedDays(days: Day[]): Array<Day | null> {
 	return [...Array<Day | null>(pad).fill(null), ...days];
 }
 
+/** One label per week column; only the first week of each month gets a short name. */
+function monthLabelsForWeeks(aligned: Array<Day | null>): (string | null)[] {
+	const weeks = Math.ceil(aligned.length / 7);
+	const labels: (string | null)[] = [];
+	let lastMonth = -1;
+
+	for (let w = 0; w < weeks; w++) {
+		let month = -1;
+		let year = 0;
+		for (let r = 0; r < 7; r++) {
+			const day = aligned[w * 7 + r];
+			if (!day) continue;
+			const d = new Date(`${day.date}T00:00:00`);
+			month = d.getMonth();
+			year = d.getFullYear();
+			break;
+		}
+		if (month === -1) {
+			labels.push(null);
+			continue;
+		}
+		if (month !== lastMonth) {
+			labels.push(
+				new Date(year, month, 1).toLocaleString("en", { month: "short" }),
+			);
+			lastMonth = month;
+		} else {
+			labels.push(null);
+		}
+	}
+	return labels;
+}
+
 export default function App() {
 	const [contributions, setContributions] = useState<Day[]>([]);
 	const [loadingStats, setLoadingStats] = useState(true);
@@ -85,6 +118,11 @@ export default function App() {
 			cancelled = true;
 		};
 	}, []);
+
+	const alignedDays =
+		contributions.length > 0 ? weekAlignedDays(contributions) : [];
+	const monthLabels =
+		alignedDays.length > 0 ? monthLabelsForWeeks(alignedDays) : [];
 
 	return (
 		<div
@@ -159,26 +197,41 @@ export default function App() {
 							<div className="calendar-scroll">
 								{loadingStats ? (
 									<p className="text-sm text-white/40">Loading activity…</p>
-								) : contributions.length > 0 ? (
+								) : alignedDays.length > 0 ? (
 									<div
-										className="calendar-grid"
+										className="calendar-chart"
 										aria-label="GitHub contribution calendar"
 									>
-										{weekAlignedDays(contributions).map((day, i) =>
-											day ? (
-												<div
-													key={day.date}
-													className={`contribution-day level-${day.level}`}
-													title={`${day.date}: ${day.count} contributions`}
-												/>
-											) : (
-												<div
-													key={`pad-${i}`}
-													className="contribution-day level-pad"
-													aria-hidden="true"
-												/>
-											),
-										)}
+										<div
+											className="calendar-months"
+											aria-hidden="true"
+											style={{
+												gridTemplateColumns: `repeat(${monthLabels.length}, minmax(0, 1fr))`,
+											}}
+										>
+											{monthLabels.map((label, i) => (
+												<span key={`m-${i}`} className="calendar-month">
+													{label ?? ""}
+												</span>
+											))}
+										</div>
+										<div className="calendar-grid">
+											{alignedDays.map((day, i) =>
+												day ? (
+													<div
+														key={day.date}
+														className={`contribution-day level-${day.level}`}
+														title={`${day.date}: ${day.count} contributions`}
+													/>
+												) : (
+													<div
+														key={`pad-${i}`}
+														className="contribution-day level-pad"
+														aria-hidden="true"
+													/>
+												),
+											)}
+										</div>
 									</div>
 								) : (
 									<p className="text-sm text-white/40">
