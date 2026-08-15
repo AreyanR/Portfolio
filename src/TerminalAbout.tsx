@@ -4,7 +4,7 @@ const ABOUT_TEXT =
 	"Computer Science graduate from the University of Oregon currently pursuing a Master of Engineering in Mechanical & Aerospace Engineering at UC Irvine. I specialize in software engineering, computer vision, and machine learning, with a focus on applying those skills toward autonomous intelligent systems. Driven by pushing the boundaries of what technology can achieve, I aim to contribute to the next generation of automation by bridging core software design with physical robotic systems.";
 
 const LINES = [
-	{ type: "cmd" as const, text: "cat ~/about.md" },
+	{ type: "cmd" as const, text: "cat aboutme.md" },
 	{ type: "out" as const, text: ABOUT_TEXT },
 ];
 
@@ -79,22 +79,26 @@ export default function TerminalAbout({ active }: Props) {
 	};
 
 	return (
-		<div className="terminal-window overflow-hidden rounded-xl border border-white/[0.1] bg-[#0c0c0e]/[0.92] backdrop-blur-[14px]">
-			{/* macOS title bar — name is the window title (large + readable) */}
-			<div className="relative flex min-h-14 items-center border-b border-white/[0.08] bg-gradient-to-b from-white/[0.07] to-white/[0.02] px-3.5 py-3 sm:min-h-[4.25rem] sm:px-4 sm:py-3.5">
-				<div className="z-10 flex shrink-0 items-center gap-2" aria-hidden="true">
-					<span className="size-3 rounded-full bg-[#ff5f57] shadow-[inset_0_-0.5px_0_rgba(0,0,0,0.18)] sm:size-[13px]" />
-					<span className="size-3 rounded-full bg-[#febc2e] shadow-[inset_0_-0.5px_0_rgba(0,0,0,0.18)] sm:size-[13px]" />
-					<span className="size-3 rounded-full bg-[#28c840] shadow-[inset_0_-0.5px_0_rgba(0,0,0,0.18)] sm:size-[13px]" />
+		<div className="terminal-window overflow-hidden rounded-[10px]">
+			{/* Classic macOS window chrome */}
+			<div className="terminal-titlebar relative flex h-11 items-center px-3.5 sm:h-12 sm:px-4">
+				<div
+					className="z-10 flex shrink-0 items-center gap-[7px]"
+					aria-hidden="true"
+				>
+					<span className="traffic-light traffic-close" title="Close" />
+					<span className="traffic-light traffic-minimize" title="Minimize" />
+					<span className="traffic-light traffic-zoom" title="Zoom" />
 				</div>
-				<div className="pointer-events-none absolute inset-0 flex items-center justify-center px-16 sm:px-20">
-					<span className="truncate text-[clamp(1.25rem,3.8vw,1.85rem)] font-semibold tracking-[-0.03em] text-white">
-						Areyan Rastawan
+				<div className="pointer-events-none absolute inset-0 flex items-center justify-center px-14">
+					<span className="truncate font-mono text-[13px] tracking-[-0.01em] text-white/70 sm:text-[14px]">
+						aboutme.md
 					</span>
 				</div>
 			</div>
 
-			<div className="min-h-[9.5rem] px-4 py-3.5 font-mono text-[13.5px] leading-relaxed text-white/75 sm:px-5 sm:py-4 sm:text-sm">
+			{/* Black text area */}
+			<div className="terminal-body relative min-h-[10.5rem] px-4 py-4 font-mono text-[13.5px] leading-[1.7] text-white/78 sm:min-h-[11.5rem] sm:px-5 sm:py-5 sm:text-[14px]">
 				{!started ? null : (
 					<>
 						{LINES.map((line, i) => {
@@ -102,10 +106,14 @@ export default function TerminalAbout({ active }: Props) {
 								return (
 									<p
 										key={i}
-										className={line.type === "cmd" ? "mb-2 text-white/45" : "mb-3"}
+										className={
+											line.type === "cmd"
+												? "mb-3 text-white/40"
+												: "mb-3 text-white/80"
+										}
 									>
 										{line.type === "cmd" ? (
-											<span className="text-white/30">› </span>
+											<span className="text-emerald-400/70">› </span>
 										) : null}
 										{line.text}
 									</p>
@@ -115,10 +123,14 @@ export default function TerminalAbout({ active }: Props) {
 								return (
 									<p
 										key={i}
-										className={line.type === "cmd" ? "mb-2 text-white/45" : "mb-3"}
+										className={
+											line.type === "cmd"
+												? "mb-3 text-white/40"
+												: "mb-3 text-white/80"
+										}
 									>
 										{line.type === "cmd" ? (
-											<span className="text-white/30">› </span>
+											<span className="text-emerald-400/70">› </span>
 										) : null}
 										{line.text.slice(0, visible.chars)}
 										<span className="caret" aria-hidden="true" />
@@ -129,8 +141,8 @@ export default function TerminalAbout({ active }: Props) {
 						})}
 						{(visible.kind === "full" && visible.lineIndex === LINES.length - 1) ||
 						reduced ? (
-							<p className="text-white/45">
-								<span className="text-white/30">› </span>
+							<p className="text-white/40">
+								<span className="text-emerald-400/70">› </span>
 								<span className="caret" aria-hidden="true" />
 							</p>
 						) : null}

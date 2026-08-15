@@ -7,14 +7,7 @@ import { useEffect, useRef } from "react";
  * Vitruvian Man live on a <canvas>, with no external runtime, CDN, or hosted
  * scene. The whole figure is defined from signed-distance math (line segments
  * + rings), sampled onto a monospace character grid, and shaded with an ASCII
- * ramp so the strokes read as glowing white glyphs on black.
- *
- * It is the offline stand-in for the prompt's UnicornStudio embed (project
- * `whwOGlfJ5Rz2rHaEUgHl`), whose runtime CDN and hosted scene are unreachable
- * in a locked-down/offline environment. The motion is the point of the drawing:
- * the active limbs sweep between the two canonical poses — arms/legs to the
- * SQUARE (earthly) and to the CIRCLE (cosmic) — over a faint static ghost of
- * both, while the circle breathes and a soft scan-line shimmers up the body.
+ * ramp so the strokes read as glowing glyphs on black.
  */
 
 type V2 = readonly [number, number];
@@ -62,39 +55,82 @@ const SHOULDER_R: V2 = [0.17, 0.48];
 const HEAD_C: V2 = [0, 0.72];
 const HEAD_R = 0.145;
 
-// Arm fingertips — pose A: horizontal (to the square); pose B: raised (to the circle).
 const ARM_A_L: V2 = [-0.95, 0.48];
 const ARM_A_R: V2 = [0.95, 0.48];
 const ARM_B_L: V2 = [-0.5, 0.87];
 const ARM_B_R: V2 = [0.5, 0.87];
 
-// Leg toes — pose A: together/vertical (square bottom); pose B: spread (circle arc).
 const LEG_A_L: V2 = [-0.1, -1.0];
 const LEG_A_R: V2 = [0.1, -1.0];
 const LEG_B_L: V2 = [-0.46, -0.9];
 const LEG_B_R: V2 = [0.46, -0.9];
 
-// Square (earthly frame): bottom at the feet, a true square around the figure.
 const SQ_X = 0.92;
 const SQ_TOP = 0.84;
 const SQ_BOT = -1.0;
 
 const RAMP_BRIGHT = " .:-=+*#%@";
 const RAMP_DIM = " .:-=+";
-const STAR_CHARS = ".", // base star
-	STAR_BRIGHT = "+";
+const STAR_CHARS = ".";
+const STAR_BRIGHT = "+";
+
+export type AsciiVitruvianConfig = {
+	/** Multiplies animation speed (0 ≈ frozen). */
+	speed: number;
+	/** Figure size relative to viewport height. */
+	figureScale: number;
+	/** Character density (font size multiplier). */
+	density: number;
+	/** Horizontal center of figure (0–1 of width). */
+	offsetX: number;
+	/** Vertical center of figure (0–1 of height). */
+	offsetY: number;
+	showStars: boolean;
+	showGhost: boolean;
+	showScanline: boolean;
+	colorBright: string;
+	colorGhost: string;
+	colorStar: string;
+};
+
+export const ASCII_VITRUVIAN_DEFAULTS: AsciiVitruvianConfig = {
+	speed: 1,
+	figureScale: 0.36,
+	density: 1,
+	offsetX: 0.55,
+	offsetY: 0.47,
+	showStars: true,
+	showGhost: true,
+	showScanline: true,
+	colorBright: "rgba(255,255,255,0.96)",
+	colorGhost: "rgba(255,255,255,0.5)",
+	colorStar: "rgba(255,255,255,0.22)",
+};
 
 export interface AsciiVitruvianProps {
 	className?: string;
-	/** Multiplies the animation speed (0 ≈ frozen). */
+	/** @deprecated Prefer `config.speed` — kept for simple call sites. */
 	speed?: number;
+	config?: Partial<AsciiVitruvianConfig>;
 }
 
 export default function AsciiVitruvian({
 	className,
-	speed = 1,
+	speed,
+	config,
 }: AsciiVitruvianProps) {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
+	const configRef = useRef<AsciiVitruvianConfig>({
+		...ASCII_VITRUVIAN_DEFAULTS,
+		...config,
+		...(speed != null ? { speed } : {}),
+	});
+
+	configRef.current = {
+		...ASCII_VITRUVIAN_DEFAULTS,
+		...config,
+		...(speed != null ? { speed } : {}),
+	};
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
@@ -115,9 +151,8 @@ export default function AsciiVitruvian({
 		let fontSize = 14;
 		let W = 0;
 		let H = 0;
+		let lastDensity = -1;
 
-		// Per-row output buffers, rebuilt each frame and flushed with one fillText
-		// per row per layer (≈ rows × 3 draw calls/frame).
 		let starRow: string[] = [];
 		let ghostRow: string[] = [];
 		let brightRow: string[] = [];
@@ -135,8 +170,9 @@ export default function AsciiVitruvian({
 			view.style.height = `${H}px`;
 			g.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-			// Monospace cell metrics; font size scales with the viewport.
-			fontSize = clamp(Math.round(Math.min(W, H) / 46), 9, 16);
+			const density = configRef.current.density;
+			lastDensity = density;
+			fontSize = clamp(Math.round((Math.min(W, H) / 46) * density), 7, 22);
 			cellW = fontSize * 0.6;
 			cellH = fontSize * 1.06;
 			cols = Math.ceil(W / cellW);
@@ -148,36 +184,33 @@ export default function AsciiVitruvian({
 			brightRow = new Array(rows).fill("");
 		}
 
-		/** Deterministic per-cell hash in [0,1) — for the twinkling star field. */
 		function hash(c: number, r: number) {
 			const s = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
 			return s - Math.floor(s);
 		}
 
 		function frame(now: number) {
-			const t = reduced ? 6.0 : (now / 1000) * speed;
+			const cfg = configRef.current;
+			if (cfg.density !== lastDensity) resize();
 
-			// Animation drivers.
-			const m = 0.5 - 0.5 * Math.cos(t * 0.55); // limb morph: square ⇄ circle
-			const RC = 1 + (reduced ? 0 : 0.02 * Math.sin(t * 0.9)); // breathing circle
-			const scanY = reduced ? 2 : 1.05 - ((t * 0.12) % 1.0) * 2.4; // shimmer sweep (figure units)
+			const t = reduced ? 6.0 : (now / 1000) * cfg.speed;
 
-			// Layout: navel placed a touch right-of-centre and above the midline so
-			// the spread legs and head both stay clear of the chrome.
-			const S = H * 0.36; // pixels per figure unit
-			const figCx = W * 0.55;
-			const figCy = H * 0.47;
-			const strokeBright = cellH * 0.7; // px line thickness → crisp ~1 char
+			const m = 0.5 - 0.5 * Math.cos(t * 0.55);
+			const RC = 1 + (reduced ? 0 : 0.02 * Math.sin(t * 0.9));
+			const scanY = reduced ? 2 : 1.05 - ((t * 0.12) % 1.0) * 2.4;
+
+			const S = H * cfg.figureScale;
+			const figCx = W * cfg.offsetX;
+			const figCy = H * cfg.offsetY;
+			const strokeBright = cellH * 0.7;
 			const strokeGhost = cellH * 0.46;
 			const ring = cellH * 0.55;
 
-			// Active (bright) limbs for this frame.
 			const aL = lerp2(ARM_A_L, ARM_B_L, m);
 			const aR = lerp2(ARM_A_R, ARM_B_R, m);
 			const lL = lerp2(LEG_A_L, LEG_B_L, m);
 			const lR = lerp2(LEG_A_R, LEG_B_R, m);
 
-			// Bright segments: spine, shoulders, two arms, two legs.
 			const bseg: number[] = [
 				PELVIS[0],
 				PELVIS[1],
@@ -204,7 +237,6 @@ export default function AsciiVitruvian({
 				lR[0],
 				lR[1],
 			];
-			// Ghost segments: both extreme poses of every limb + the square.
 			const gseg: number[] = [
 				SHOULDER_L[0],
 				SHOULDER_L[1],
@@ -238,7 +270,6 @@ export default function AsciiVitruvian({
 				PELVIS[1],
 				LEG_B_R[0],
 				LEG_B_R[1],
-				// square
 				-SQ_X,
 				SQ_TOP,
 				SQ_X,
@@ -265,7 +296,6 @@ export default function AsciiVitruvian({
 				for (let c = 0; c < cols; c++) {
 					const fx = (c * cellW + cellW * 0.5 - figCx) / S;
 
-					// Bright field: nearest bright segment, head ring, breathing circle.
 					let db = 1e9;
 					for (let i = 0; i < bseg.length; i += 4) {
 						const d = sdSeg(
@@ -282,10 +312,8 @@ export default function AsciiVitruvian({
 						Math.hypot(fx - HEAD_C[0], fy - HEAD_C[1]) - HEAD_R,
 					);
 					if (dHead < db) db = dHead;
-					// Bright = the human figure only, so it reads as the ink subject.
 					let brightI = 1 - smoothstep(0, strokeBright / S, db);
-					// Scan-line shimmer boosts whatever the body is showing.
-					if (brightI > 0.05) {
+					if (cfg.showScanline && brightI > 0.05) {
 						brightI = clamp(
 							brightI + 0.45 * Math.exp(-((fy - scanY) * (fy - scanY)) / 0.012),
 							0,
@@ -306,42 +334,45 @@ export default function AsciiVitruvian({
 					}
 					bright += " ";
 
-					// Dim "construction" field: the cosmic circle + earthly square +
-					// the faint superposition of both limb poses (the iconic many-limbs).
-					let dg = 1e9;
-					for (let i = 0; i < gseg.length; i += 4) {
-						const d = sdSeg(
-							fx,
-							fy,
-							gseg[i],
-							gseg[i + 1],
-							gseg[i + 2],
-							gseg[i + 3],
+					if (cfg.showGhost) {
+						let dg = 1e9;
+						for (let i = 0; i < gseg.length; i += 4) {
+							const d = sdSeg(
+								fx,
+								fy,
+								gseg[i],
+								gseg[i + 1],
+								gseg[i + 2],
+								gseg[i + 3],
+							);
+							if (d < dg) dg = d;
+						}
+						const dCircle = Math.abs(Math.hypot(fx, fy) - RC);
+						const ghostI = Math.max(
+							1 - smoothstep(0, strokeGhost / S, dg),
+							1 - smoothstep(0, ring / S, dCircle),
 						);
-						if (d < dg) dg = d;
-					}
-					const dCircle = Math.abs(Math.hypot(fx, fy) - RC);
-					const ghostI = Math.max(
-						1 - smoothstep(0, strokeGhost / S, dg),
-						1 - smoothstep(0, ring / S, dCircle),
-					);
-					if (ghostI > 0.16) {
-						const idx = clamp(
-							Math.floor(ghostI * RAMP_DIM.length),
-							1,
-							RAMP_DIM.length - 1,
-						);
-						ghost += RAMP_DIM[idx];
-						star += " ";
-						continue;
+						if (ghostI > 0.16) {
+							const idx = clamp(
+								Math.floor(ghostI * RAMP_DIM.length),
+								1,
+								RAMP_DIM.length - 1,
+							);
+							ghost += RAMP_DIM[idx];
+							star += " ";
+							continue;
+						}
 					}
 					ghost += " ";
 
-					// Star field: sparse twinkling dots everywhere else.
-					const h = hash(c, r);
-					if (h > 0.985) {
-						const tw = 0.5 + 0.5 * Math.sin(t * 2.2 + h * 40);
-						star += tw > 0.78 ? STAR_BRIGHT : tw > 0.4 ? STAR_CHARS : " ";
+					if (cfg.showStars) {
+						const h = hash(c, r);
+						if (h > 0.985) {
+							const tw = 0.5 + 0.5 * Math.sin(t * 2.2 + h * 40);
+							star += tw > 0.78 ? STAR_BRIGHT : tw > 0.4 ? STAR_CHARS : " ";
+						} else {
+							star += " ";
+						}
 					} else {
 						star += " ";
 					}
@@ -351,13 +382,16 @@ export default function AsciiVitruvian({
 				brightRow[r] = bright;
 			}
 
-			// Flush: clear, then star → ghost → bright (back to front).
 			g.clearRect(0, 0, W, H);
-			g.fillStyle = "rgba(255,255,255,0.22)";
-			for (let r = 0; r < rows; r++) g.fillText(starRow[r], 0, r * cellH);
-			g.fillStyle = "rgba(255,255,255,0.5)";
-			for (let r = 0; r < rows; r++) g.fillText(ghostRow[r], 0, r * cellH);
-			g.fillStyle = "rgba(255,255,255,0.96)";
+			if (cfg.showStars) {
+				g.fillStyle = cfg.colorStar;
+				for (let r = 0; r < rows; r++) g.fillText(starRow[r], 0, r * cellH);
+			}
+			if (cfg.showGhost) {
+				g.fillStyle = cfg.colorGhost;
+				for (let r = 0; r < rows; r++) g.fillText(ghostRow[r], 0, r * cellH);
+			}
+			g.fillStyle = cfg.colorBright;
 			for (let r = 0; r < rows; r++) g.fillText(brightRow[r], 0, r * cellH);
 
 			if (!reduced) raf = requestAnimationFrame(frame);
@@ -369,7 +403,7 @@ export default function AsciiVitruvian({
 		window.addEventListener("resize", resize);
 
 		if (reduced) {
-			frame(0); // single static frame
+			frame(0);
 		} else {
 			raf = requestAnimationFrame(frame);
 		}
@@ -379,7 +413,7 @@ export default function AsciiVitruvian({
 			ro.disconnect();
 			window.removeEventListener("resize", resize);
 		};
-	}, [speed]);
+	}, []);
 
 	return (
 		<canvas

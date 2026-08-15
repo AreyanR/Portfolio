@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lab": "vite --port 3003 --strictPort --open /playground.html",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

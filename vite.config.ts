@@ -17,4 +17,12 @@ export default defineConfig({
 		port: 3002,
 		strictPort: true,
 	},
+	build: {
+		rollupOptions: {
+			input: {
+				main: path.resolve(__dirname, "index.html"),
+				playground: path.resolve(__dirname, "playground.html"),
+			},
+		},
+	},
 });
