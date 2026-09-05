@@ -413,15 +413,22 @@ section[id] {
 	font-family: var(--font-mono);
 	font-size: 17px;
 	font-weight: 500;
-	color: rgba(255, 255, 255, 0.92);
+	color: rgba(255, 255, 255, 0.78);
 	line-height: 1.35;
+}
+
+.exp-card__commitment {
+	font-weight: 400;
+	font-size: 0.68em;
+	letter-spacing: 0.02em;
+	color: rgba(255, 255, 255, 0.42);
 }
 
 .exp-card__titleblock p {
 	margin: 0.4rem 0 0;
-	font-size: 14px;
+	font-size: 13px;
 	line-height: 1.45;
-	color: rgba(255, 255, 255, 0.45);
+	color: rgba(255, 255, 255, 0.55);
 }
 
 .exp-card__meta {
@@ -436,9 +443,9 @@ section[id] {
 	font-family: var(--font-mono);
 	font-size: 11px;
 	letter-spacing: 0.04em;
-	color: rgba(255, 255, 255, 0.48);
+	color: rgba(255, 255, 255, 0.42);
 	padding: 0.32rem 0.6rem;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .exp-card__chevron {
@@ -495,7 +502,7 @@ section[id] {
 
 .exp-block + .exp-block {
 	padding-top: 1.15rem;
-	border-top: 1px solid rgba(255, 255, 255, 0.08);
+	border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 @media (min-width: 760px) {
@@ -511,7 +518,7 @@ section[id] {
 		padding-top: 0;
 		border-top: 0;
 		padding-left: 1.5rem;
-		border-left: 1px solid rgba(255, 255, 255, 0.08);
+		border-left: 0;
 	}
 }
 
@@ -519,9 +526,9 @@ section[id] {
 	margin: 0 0 0.7rem;
 	font-family: var(--font-mono);
 	font-size: 10px;
-	letter-spacing: 0.14em;
+	letter-spacing: 0.16em;
 	text-transform: uppercase;
-	color: rgba(255, 255, 255, 0.34);
+	color: rgba(255, 255, 255, 0.36);
 }
 
 .exp-list {
@@ -530,27 +537,27 @@ section[id] {
 	list-style: none;
 	display: flex;
 	flex-direction: column;
-	gap: 0.7rem;
+	gap: 0.75rem;
 	max-width: none;
 }
 
 .exp-list li {
 	position: relative;
 	padding-left: 0.9rem;
-	font-size: 13.5px;
-	line-height: 1.55;
-	color: rgba(255, 255, 255, 0.5);
+	font-size: 14px;
+	line-height: 1.7;
+	color: rgba(255, 255, 255, 0.68);
 }
 
 .exp-list li::before {
 	content: "";
 	position: absolute;
 	left: 0;
-	top: 0.55em;
+	top: 0.7em;
 	width: 4px;
 	height: 4px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.28);
+	background: rgba(255, 255, 255, 0.34);
 }
 
 .exp-em {

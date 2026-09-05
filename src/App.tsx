@@ -15,10 +15,10 @@ import TerminalAbout from "./TerminalAbout";
 
 const NAV_ITEMS = [
 	{ label: "About", href: "#about" },
-	{ label: "Projects", href: "#projects" },
-	{ label: "Activity", href: "#activity" },
 	{ label: "Experience", href: "#experience" },
 	{ label: "Education", href: "#education" },
+	{ label: "Git Stats", href: "#activity" },
+	{ label: "Projects", href: "#projects" },
 	{ label: "Skills", href: "#skills" },
 	{ label: "Contact", href: "#contact" },
 ];
@@ -177,7 +177,8 @@ export default function App() {
 					<TerminalAbout active={aboutActive} />
 				</section>
 
-				<ProjectsCarousel username={GITHUB_USER} />
+				<ExperienceSection />
+				<EducationSection />
 
 				<section
 					id="activity"
@@ -255,8 +256,7 @@ export default function App() {
 					</div>
 				</section>
 
-				<ExperienceSection />
-				<EducationSection />
+				<ProjectsCarousel username={GITHUB_USER} />
 				<SkillsSection />
 				<ContactSection />
 			</main>

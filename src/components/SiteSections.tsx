@@ -1,51 +1,10 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
-/** Match Portfolio App.js: [brackets] = light emphasis inside full sentences. */
-function RichLine({ text }: { text: string }) {
-	const parts = text.split(/(\[.*?\])/g);
-	return (
-		<span>
-			{parts.map((part, i) => {
-				if (part.startsWith("[") && part.endsWith("]")) {
-					return (
-						<span key={i} className="exp-em">
-							{part.slice(1, -1)}
-						</span>
-					);
-				}
-				return <span key={i}>{part}</span>;
-			})}
-		</span>
-	);
-}
-
-function BulletList({ items }: { items: string[] }) {
+function BulletList({ items }: { items: ReactNode[] }) {
 	return (
 		<ul className="exp-list">
-			{items.map((item) => (
-				<li key={item}>
-					{item.includes("PSURP") ? (
-						<>
-							{item.split(/(PSURP)/g).map((chunk, i) =>
-								chunk === "PSURP" ? (
-									<a
-										key={i}
-										href="https://www.blackboxtoolkit.com/psurp.html"
-										target="_blank"
-										rel="noopener noreferrer"
-										className="exp-link"
-									>
-										PSURP
-									</a>
-								) : (
-									<RichLine key={i} text={chunk} />
-								),
-							)}
-						</>
-					) : (
-						<RichLine text={item} />
-					)}
-				</li>
+			{items.map((item, index) => (
+				<li key={index}>{item}</li>
 			))}
 		</ul>
 	);
@@ -56,29 +15,50 @@ type Job = {
 	title: string;
 	place: string;
 	when: string;
-	bullets: string[];
-	impact: string[];
+	commitment: "Part-Time" | "Full-Time";
+	bullets: ReactNode[];
+	impact: ReactNode[];
 };
 
 const JOBS: Job[] = [
+	{
+		id: "fema",
+		title: "Systems Automation Engineer (Contract)",
+		place: "FEMA Physical Therapy Center | Orange County, CA",
+		when: "June 2026 - September 2026",
+		commitment: "Part-Time",
+		bullets: [
+			"Repurposed an old device into a self-service patient sign-in kiosk, streamlining front-desk intake and reducing manual workload for administrative staff.",
+			"Configured and integrated a VoIP call-routing system that automatically answers and routes incoming calls, regardless of front-desk availability.",
+			"Automated legacy fax machine workflows by migrating from physical fax handling to software-based fax ingestion and PDF processing.",
+			"Developed custom scripts enabling automated, template-based form filling for physical therapists, streamlining clinical documentation workflows.",
+		],
+		impact: [
+			"Reduced front-desk check-in time by cutting average patient sign-in from several minutes of paperwork to under a minute via the self-service kiosk.",
+			"Eliminated missed patient calls by ensuring all voicemails and callbacks are automatically logged and routed directly to staff desktops for review at any time.",
+			"Cut paper waste and physical storage needs by removing fax machine dependency entirely from daily office operations.",
+			"Freed up therapist time for patient care by cutting form fill-out time to a fraction of what manual paperwork required.",
+		],
+	},
 	{
 		id: "bridgepos",
 		title: "Software Engineer (Contract)",
 		place: "BridgePOS | Orange County, CA",
 		when: "August 2025 - November 2025",
+		commitment: "Full-Time",
 		bullets: [
-			"Developed a [full stack invoice automation system using React, Node.js, and Python] to streamline [invoice capture, data extraction, and downstream processing workflows].",
-			"Implemented [OCR and computer vision pipelines] to extract structured data from [handwritten and printed invoices] with integrated validation and error detection.",
-			"Designed and implemented [RESTful APIs] to support [scanner ingestion and structured JSON output] for automated database population.",
-			"Built [interactive validation and correction interfaces] to support [rapid human review and exception handling].",
-			"Tested system performance across [a wide range of vendor invoice formats] to ensure [consistent extraction behavior and system reliability].",
+			"Developed a full stack invoice automation system using React, Node.js, and Python to streamline invoice capture, data extraction, and downstream processing workflows.",
+			"Implemented OCR and computer vision pipelines to extract structured data from handwritten and printed invoices with integrated validation and error detection.",
+			"Designed and implemented RESTful APIs to support scanner ingestion and structured JSON output for automated database population.",
+			"Built interactive validation and correction interfaces to support rapid human review and exception handling.",
+			"Tested system performance across a wide range of vendor invoice formats to ensure consistent extraction behavior and system reliability.",
 		],
 		impact: [
-			"[Reduced manual invoice data entry time] by automating capture, extraction, and validation workflows.",
-			"[Achieved 85 percent or higher extraction accuracy] across diverse handwritten and printed invoice formats.",
-			"[Improved processing reliability] by combining automated OCR with structured validation and human in the loop review tools.",
-			"[Supported integration with warehouse management systems] through standardized APIs and structured data output.",
-			"[Validated system] across 20 plus invoice format variations from different vendors.",
+			"Reduced manual invoice data entry time by automating capture, extraction, and validation workflows.",
+			"Achieved 85 percent or higher extraction accuracy across diverse handwritten and printed invoice formats.",
+			"Improved processing reliability by combining automated OCR with structured validation and human in the loop review tools.",
+			"Supported integration with warehouse management systems through standardized APIs and structured data output.",
+			"Validated system across 20 plus invoice format variations from different vendors.",
 		],
 	},
 	{
@@ -86,20 +66,33 @@ const JOBS: Job[] = [
 		title: "Research Software Engineer",
 		place: "Action Control Lab | Eugene, OR",
 		when: "November 2024 - June 2025",
+		commitment: "Part-Time",
 		bullets: [
-			"Developed a [hardware-integrated 2D simulation in PsychoPy] that combined task coordination, input capture, and visual feedback for [motor-learning neurological studies].",
-			"Engineered the [sensor-to-software pipeline in Python], processing pressure-pad signals from the PSURP into [millisecond-accurate controller inputs] for research analysis.",
-			"Built a [fully automated data-capture workflow] that captured trial events, recorded performance metrics, and [exported structured CSV datasets] with no manual processing required.",
-			"Designed a [participant configuration GUI] that streamlined setup, maintained consistent trial settings, and [reduced researcher effort across sessions].",
-			"Collaborated with neuroscience researchers through [iterative prototyping] to refine task mechanics and experiment parameters as study requirements evolved.",
-			"Authored [technical documentation] covering setup, calibration, integration, and long-term maintenance workflows.",
+			"Developed a hardware-integrated 2D simulation in PsychoPy that combined task coordination, input capture, and visual feedback for motor-learning neurological studies.",
+			<>
+				Engineered the sensor-to-software pipeline in Python, processing
+				pressure-pad signals from the{" "}
+				<a
+					href="https://www.blackboxtoolkit.com/psurp.html"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="exp-link"
+				>
+					PSURP
+				</a>{" "}
+				into millisecond-accurate controller inputs for research analysis.
+			</>,
+			"Built a fully automated data-capture workflow that captured trial events, recorded performance metrics, and exported structured CSV datasets with no manual processing required.",
+			"Designed a participant configuration GUI that streamlined setup, maintained consistent trial settings, and reduced researcher effort across sessions.",
+			"Collaborated with neuroscience researchers through iterative prototyping to refine task mechanics and experiment parameters as study requirements evolved.",
+			"Authored technical documentation covering setup, calibration, integration, and long-term maintenance workflows.",
 		],
 		impact: [
-			"[Increased participant engagement] through interactive task elements and visual feedback.",
-			"[Reduced researcher workload by ~80 percent] by automating setup and trial preparation.",
-			"[Improved measurement accuracy] using a calibrated pressure-pad pipeline for higher-resolution force input.",
-			"[Improved data reliability] across 15+ sessions through standardized timing and automated dataset generation.",
-			"[Expanded study capacity] by streamlining workflows and reducing manual effort to support more participants.",
+			"Increased participant engagement through interactive task elements and visual feedback.",
+			"Reduced researcher workload by ~80 percent by automating setup and trial preparation.",
+			"Improved measurement accuracy using a calibrated pressure-pad pipeline for higher-resolution force input.",
+			"Improved data reliability across 15+ sessions through standardized timing and automated dataset generation.",
+			"Expanded study capacity by streamlining workflows and reducing manual effort to support more participants.",
 		],
 	},
 ];
@@ -209,7 +202,10 @@ function JobBlock({ job }: { job: Job }) {
 				className="exp-card__trigger"
 			>
 				<div className="exp-card__titleblock">
-					<h3>{job.title}</h3>
+					<h3>
+						{job.title}
+						<span className="exp-card__commitment"> · {job.commitment}</span>
+					</h3>
 					<p>{job.place}</p>
 				</div>
 				<div className="exp-card__meta">
