@@ -34,10 +34,10 @@ const JOBS: Job[] = [
 			"Developed custom scripts enabling automated, template-based form filling for physical therapists, streamlining clinical documentation workflows.",
 		],
 		impact: [
-			"Reduced front-desk check-in time by cutting average patient sign-in from several minutes of paperwork to under a minute via the self-service kiosk.",
+			"Reduced average front-desk check-in time by moving patient sign-in from paperwork to the self-service kiosk.",
 			"Eliminated missed patient calls by ensuring all voicemails and callbacks are automatically logged and routed directly to staff desktops for review at any time.",
 			"Cut paper waste and physical storage needs by removing fax machine dependency entirely from daily office operations.",
-			"Freed up therapist time for patient care by cutting form fill-out time to a fraction of what manual paperwork required.",
+			"Freed up therapist time for patient care by cutting form fill-out time to a fraction of what manual entry required.",
 		],
 	},
 	{
