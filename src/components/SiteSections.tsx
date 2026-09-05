@@ -23,8 +23,8 @@ type Job = {
 const JOBS: Job[] = [
 	{
 		id: "fema",
-		title: "Systems Automation Engineer (Contract)",
-		place: "FEMA Physical Therapy Center | Orange County, CA",
+		title: "Systems Automation Engineer",
+		place: "Fema Physical Therapy Center | Orange County, CA",
 		when: "June 2026 - September 2026",
 		commitment: "Part-Time",
 		bullets: [
