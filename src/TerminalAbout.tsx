@@ -47,9 +47,14 @@ function colorCmd(text: string): ReactNode[] {
 }
 
 function lineDelay(line: Line, done: boolean): number {
-	if (done) return line.type === "cmd" ? 140 : 70;
-	if (line.type === "cmd") return 14 + Math.random() * 10;
-	return 2 + Math.random() * 3;
+	if (done) return line.type === "cmd" ? 60 : 30;
+	if (line.type === "cmd") return 8 + Math.random() * 6;
+	return 1;
+}
+
+function charsPerTick(line: Line): number {
+	if (line.type === "cmd") return 1;
+	return 4 + Math.floor(Math.random() * 3);
 }
 
 export default function TerminalAbout({ active }: Props) {
@@ -87,7 +92,7 @@ export default function TerminalAbout({ active }: Props) {
 			if (!line) return;
 
 			if (chars < line.text.length) {
-				chars += 1;
+				chars = Math.min(line.text.length, chars + charsPerTick(line));
 				setVisible({ kind: "typing", lineIndex, chars });
 				timer = window.setTimeout(tick, lineDelay(line, false));
 				return;
@@ -101,7 +106,7 @@ export default function TerminalAbout({ active }: Props) {
 			timer = window.setTimeout(tick, lineDelay(line, true));
 		};
 
-		timer = window.setTimeout(tick, 90);
+		timer = window.setTimeout(tick, 40);
 		return () => {
 			if (timer) window.clearTimeout(timer);
 		};
