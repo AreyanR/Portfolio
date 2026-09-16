@@ -16,6 +16,19 @@ const PROJECT_ORDER = [
 	"Portfolio",
 ];
 
+const PROJECT_TECHNOLOGIES: Record<string, string[]> = {
+	SitRight: ["Python", "OpenCV", "MediaPipe", "customtkinter", "plyer", "Pillow", "NumPy"],
+	"ML-Ecosystem": ["Unity", "C#", "Unity ML-Agents", "Python", "NumPy", "Matplotlib"],
+	"ML-Agents-Racing-Simulation": ["Unity", "C#", "Unity ML-Agents"],
+	"Motor-Learning-Research-Project": ["Python", "PsychoPy", "PSURP pressure pad"],
+	"CardBoard-Boxing": ["Unity", "C#"],
+	BattleBoards: ["Python"],
+	"VR-XR-GameRoom": ["Unity", "C#"],
+	"Sisyphus-Simulator-UE5-": ["Unreal Engine 5", "Blueprints"],
+	"AI-Coursework": ["Python"],
+	Portfolio: ["React", "TypeScript", "Tailwind CSS", "Vite"],
+};
+
 function projectRank(name: string) {
 	const i = PROJECT_ORDER.findIndex(
 		(n) => n.toLowerCase() === name.toLowerCase(),
@@ -132,6 +145,8 @@ function ProjectCard({
 	repo: Repo;
 	kind: Kind;
 }) {
+	const technologies = PROJECT_TECHNOLOGIES[repo.name] || (repo.language ? [repo.language] : []);
+
 	return (
 		<a
 			href={repo.html_url}
@@ -151,8 +166,19 @@ function ProjectCard({
 			</div>
 			<h3>{repo.name}</h3>
 			<p>{repo.description || "Open on GitHub →"}</p>
+			{technologies.length > 0 ? (
+				<div className="mt-4 border-t border-white/[0.08] pt-3">
+					<p className="font-mono text-[10px] text-white/35">Technologies</p>
+					<div className="mt-1.5 flex flex-wrap gap-1">
+						{technologies.map((technology) => (
+							<span key={technology} className="rounded border border-white/[0.1] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[9px] text-white/50">
+								{technology}
+							</span>
+						))}
+					</div>
+				</div>
+			) : null}
 			<div className="project-card__meta">
-				{repo.language ? <span>{repo.language}</span> : null}
 				<span>
 					{new Date(repo.updated_at).toLocaleDateString(undefined, {
 						month: "short",

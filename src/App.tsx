@@ -9,7 +9,6 @@ import {
 	ContactSection,
 	EducationSection,
 	ExperienceSection,
-	SkillsSection,
 } from "@/components/SiteSections";
 import TerminalAbout from "./TerminalAbout";
 
@@ -19,7 +18,6 @@ const NAV_ITEMS = [
 	{ label: "Education", href: "#education" },
 	{ label: "Git Stats", href: "#activity" },
 	{ label: "Projects", href: "#projects" },
-	{ label: "Skills", href: "#skills" },
 	{ label: "Contact", href: "#contact" },
 ];
 
@@ -257,7 +255,6 @@ export default function App() {
 				</section>
 
 				<ProjectsCarousel username={GITHUB_USER} />
-				<SkillsSection />
 				<ContactSection />
 			</main>
 		</div>

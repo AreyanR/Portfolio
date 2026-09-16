@@ -18,6 +18,7 @@ type Job = {
 	commitment: "Part-Time" | "Full-Time";
 	bullets: ReactNode[];
 	impact: ReactNode[];
+	technologies: string[];
 };
 
 const JOBS: Job[] = [
@@ -41,6 +42,7 @@ const JOBS: Job[] = [
 			"Reduced uncertainty around local pickups with claims, queues, messaging, map context, and notifications in one product.",
 			"Built a production-minded platform with user authentication, moderation capabilities, and StoreKit support for Premium subscriptions and credit purchases.",
 		],
+		technologies: ["Swift", "SwiftUI", "ARKit", "RealityKit", "Object Capture", "Node.js", "Express", "PostgreSQL", "StoreKit"],
 	},
 	{
 		id: "fema",
@@ -60,6 +62,7 @@ const JOBS: Job[] = [
 			"Cut paper waste and physical storage needs by removing fax machine dependency entirely from daily office operations.",
 			"Freed up therapist time for patient care by cutting form fill-out time to a fraction of what manual entry required.",
 		],
+		technologies: ["Python", "React", "TypeScript", "Vite"],
 	},
 	{
 		id: "bridgepos",
@@ -81,6 +84,7 @@ const JOBS: Job[] = [
 			"Supported integration with warehouse management systems through standardized APIs and structured data output.",
 			"Validated system across 20 plus invoice format variations from different vendors.",
 		],
+		technologies: ["React", "Node.js", "Python", "OpenCV", "OCR", "Computer Vision", "REST APIs", "JSON"],
 	},
 	{
 		id: "action-control",
@@ -115,6 +119,7 @@ const JOBS: Job[] = [
 			"Improved data reliability across 15+ sessions through standardized timing and automated dataset generation.",
 			"Expanded study capacity by streamlining workflows and reducing manual effort to support more participants.",
 		],
+		technologies: ["Python", "PsychoPy", "PSURP pressure pad", "CSV", "Excel"],
 	},
 ];
 
@@ -211,6 +216,21 @@ function SectionLabel({ children }: { children: string }) {
 	);
 }
 
+function TechnologyTags({ technologies }: { technologies: string[] }) {
+	return (
+		<div className="exp-tech-stack mt-6 border-t border-white/[0.08] pt-4">
+			<p className="font-mono text-[11px] text-white/40">Technologies</p>
+			<div className="mt-2 flex flex-wrap gap-1.5">
+				{technologies.map((technology) => (
+					<span key={technology} className="rounded border border-white/[0.12] bg-white/[0.03] px-2 py-1 font-mono text-[10px] text-white/55">
+						{technology}
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
 function JobBlock({ job }: { job: Job }) {
 	const [open, setOpen] = useState(false);
 
@@ -256,6 +276,7 @@ function JobBlock({ job }: { job: Job }) {
 							<p className="exp-card__label">Impact</p>
 							<BulletList items={job.impact} />
 						</section>
+						{job.technologies.length > 0 ? <TechnologyTags technologies={job.technologies} /> : null}
 					</div>
 				</div>
 			</div>
