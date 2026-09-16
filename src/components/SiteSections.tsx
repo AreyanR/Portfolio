@@ -22,6 +22,27 @@ type Job = {
 
 const JOBS: Job[] = [
 	{
+		id: "kurbzy",
+		title: "Founder & Developer",
+		place: "Kurbzy | Orange County, CA",
+		when: "February 2025 - Present",
+		commitment: "Part-Time",
+		bullets: [
+			"Developed Kurbzy, a full-stack iOS platform for discovering, posting, and claiming free hyper-local curbside giveaways.",
+			"Built the core user flow for nearby listing discovery, item claims, contested queues, pickup coordination, in-app messaging, and push notifications.",
+			"Implemented map-based watch zones that notify users when new giveaways are posted within areas they choose.",
+			"Developed an AR and LiDAR scanning workflow that lets users capture 3D object models, save them to their collection, and preview objects in their space before pickup.",
+			"Built the supporting backend with Node.js, Express, and PostgreSQL, including authentication, email verification, Sign in with Apple, Google sign-in, share links, and listing APIs.",
+			"Created moderation and administration tools to review content, detect abuse patterns, and monitor platform activity.",
+		],
+		impact: [
+			"Turned informal curbside giveaways into a structured end-to-end discovery, claim, and pickup workflow.",
+			"Helped users evaluate whether an item will fit before pickup through LiDAR-based 3D capture and AR room previews.",
+			"Reduced uncertainty around local pickups with claims, queues, messaging, map context, and notifications in one product.",
+			"Built a production-minded platform with user authentication, moderation capabilities, and StoreKit support for Premium subscriptions and credit purchases.",
+		],
+	},
+	{
 		id: "fema",
 		title: "Systems Automation Engineer",
 		place: "Fema Physical Therapy Center | Orange County, CA",
