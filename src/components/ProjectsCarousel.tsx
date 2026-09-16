@@ -17,8 +17,8 @@ const PROJECT_ORDER = [
 ];
 
 const PROJECT_TECHNOLOGIES: Record<string, string[]> = {
-	SitRight: ["Python", "OpenCV", "MediaPipe", "customtkinter", "plyer", "Pillow", "NumPy"],
-	"ML-Ecosystem": ["Unity", "C#", "Unity ML-Agents", "Python", "NumPy", "Matplotlib"],
+	SitRight: ["Python", "OpenCV", "MediaPipe", "customtkinter", "plyer"],
+	"ML-Ecosystem": ["Unity", "C#", "Unity ML-Agents", "Python"],
 	"ML-Agents-Racing-Simulation": ["Unity", "C#", "Unity ML-Agents"],
 	"Motor-Learning-Research-Project": ["Python", "PsychoPy", "PSURP pressure pad"],
 	"CardBoard-Boxing": ["Unity", "C#"],

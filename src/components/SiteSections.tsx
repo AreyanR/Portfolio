@@ -62,7 +62,7 @@ const JOBS: Job[] = [
 			"Cut paper waste and physical storage needs by removing fax machine dependency entirely from daily office operations.",
 			"Freed up therapist time for patient care by cutting form fill-out time to a fraction of what manual entry required.",
 		],
-		technologies: ["Python", "React", "TypeScript", "Vite"],
+		technologies: ["Python", "React", "TypeScript", "Electron", "PDF.js", "pdf-lib"],
 	},
 	{
 		id: "bridgepos",
@@ -84,7 +84,7 @@ const JOBS: Job[] = [
 			"Supported integration with warehouse management systems through standardized APIs and structured data output.",
 			"Validated system across 20 plus invoice format variations from different vendors.",
 		],
-		technologies: ["React", "Node.js", "Python", "OpenCV", "OCR", "Computer Vision", "REST APIs", "JSON"],
+		technologies: ["React", "Node.js", "Python", "OpenCV", "OCR", "REST APIs"],
 	},
 	{
 		id: "action-control",
@@ -119,7 +119,7 @@ const JOBS: Job[] = [
 			"Improved data reliability across 15+ sessions through standardized timing and automated dataset generation.",
 			"Expanded study capacity by streamlining workflows and reducing manual effort to support more participants.",
 		],
-		technologies: ["Python", "PsychoPy", "PSURP pressure pad", "CSV", "Excel"],
+		technologies: ["Python", "PsychoPy", "PSURP pressure pad", "Excel"],
 	},
 ];
 
