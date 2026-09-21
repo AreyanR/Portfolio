@@ -243,6 +243,7 @@ export default function ProjectsCarousel({
 				const cleaned = data
 					.filter((r) => !r.fork)
 					.filter((r) => !r.name.startsWith("."))
+					.filter((r) => r.name.toLowerCase() !== "portfolio")
 					.sort((a, b) => {
 						const ra = projectRank(a.name);
 						const rb = projectRank(b.name);
