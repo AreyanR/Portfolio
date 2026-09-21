@@ -42,7 +42,7 @@ const JOBS: Job[] = [
 			"Reduced uncertainty around local pickups with claims, queues, messaging, map context, and notifications in one product.",
 			"Built a production-minded platform with user authentication, moderation capabilities, and StoreKit support for Premium subscriptions and credit purchases.",
 		],
-		technologies: ["Swift", "SwiftUI", "ARKit", "RealityKit", "Object Capture", "Node.js", "Express", "PostgreSQL", "StoreKit"],
+		technologies: ["Swift", "SwiftUI", "MapKit", "RealityKit", "Object Capture", "Node.js", "Express", "PostgreSQL"],
 	},
 	{
 		id: "fema",

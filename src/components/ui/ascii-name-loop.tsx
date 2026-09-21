@@ -193,10 +193,8 @@ function resolveBeat(
 	}
 
 	if (beat === "current") {
-		// Name fades in; one rocket as it appears; then periodic flybys
-		const INTRO_FLY = 5;
-		const introStart = APPEAR_DUR * 0.7;
-		const introEnd = introStart + INTRO_FLY;
+		// Name fades in while the regular periodic flyby timeline runs.
+		// Avoid a separate intro pass followed immediately by the first loop pass.
 		let reveal = 1;
 		let nameForm = 1;
 		// Stars track the name draw — full by end of appear, no late dump
@@ -207,37 +205,14 @@ function resolveBeat(
 			nameForm = smoothstep(0.05, 0.85, p);
 			starAmt = smoothstep(0.08, 0.92, p);
 		}
-		if (t < introStart) {
-			return {
-				reveal,
-				nameForm,
-				fly01: 0,
-				sceneT: t,
-				label: "Name appear",
-				stageIndex: 0,
-				starAmt,
-			};
-		}
-		if (t < introEnd) {
-			return {
-				reveal,
-				nameForm,
-				fly01: flyProgress((t - introStart) / INTRO_FLY),
-				sceneT: t,
-				label: "Name · intro rocket",
-				stageIndex: 1,
-				starAmt,
-				pathSeed: pathSeedBase,
-			};
-		}
 		return {
-			reveal: 1,
-			nameForm: 1,
+			reveal,
+			nameForm,
 			fly01: -1,
-			sceneT: t - introEnd,
+			sceneT: t,
 			label: "Name · rocket flyby",
-			stageIndex: 2,
-			starAmt: 1,
+			stageIndex: 1,
+			starAmt,
 		};
 	}
 

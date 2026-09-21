@@ -17,6 +17,16 @@ const PROJECT_ORDER = [
 ];
 
 const PROJECT_TECHNOLOGIES: Record<string, string[]> = {
+	Kurbzy: [
+		"Swift",
+		"SwiftUI",
+		"MapKit",
+		"RealityKit",
+		"Object Capture",
+		"Node.js",
+		"Express",
+		"PostgreSQL",
+	],
 	SitRight: ["Python", "OpenCV", "MediaPipe", "customtkinter", "plyer"],
 	"ML-Ecosystem": ["Unity", "C#", "Unity ML-Agents", "Python"],
 	"ML-Agents-Racing-Simulation": ["Unity", "C#", "Unity ML-Agents"],
@@ -48,7 +58,19 @@ type Repo = {
 	homepage?: string | null;
 };
 
-type Kind = "game" | "simulation" | "research" | "tool" | "web";
+const KURBZY_PRODUCT: Repo = {
+	id: -1,
+	name: "Kurbzy",
+	description:
+		"Designed and built a full-stack iOS product for free local furniture discovery, taking it from product concept to an end-to-end experience with map-based browsing, alerts, claims, messaging, and 3D room previews.",
+	html_url: "https://kurbzy.com",
+	homepage: "https://kurbzy.com",
+	language: "Swift",
+	stargazers_count: 0,
+	updated_at: new Date().toISOString(),
+};
+
+type Kind = "product" | "game" | "simulation" | "research" | "tool" | "web";
 
 type Props = {
 	username?: string;
@@ -78,6 +100,7 @@ function classifyRepo(repo: Repo): Kind {
 }
 
 const KIND_LABEL: Record<Kind, string> = {
+	product: "Product",
 	game: "Game",
 	simulation: "Simulation",
 	research: "Research",
@@ -99,6 +122,13 @@ function KindIcon({ kind }: { kind: Kind }) {
 	};
 
 	const icons: Record<Kind, ReactNode> = {
+		product: (
+			<svg {...common}>
+				<path d="M4.5 7.5 12 3l7.5 4.5v9L12 21l-7.5-4.5z" />
+				<path d="m4.5 7.5 7.5 4.4 7.5-4.4M12 12v9" />
+				<path d="m8.2 5.3 7.5 4.4" />
+			</svg>
+		),
 		game: (
 			<svg {...common}>
 				<path d="M6.5 10.5h11" />
@@ -141,9 +171,11 @@ function KindIcon({ kind }: { kind: Kind }) {
 function ProjectCard({
 	repo,
 	kind,
+	metaLabel,
 }: {
 	repo: Repo;
 	kind: Kind;
+	metaLabel?: string;
 }) {
 	const technologies = PROJECT_TECHNOLOGIES[repo.name] || (repo.language ? [repo.language] : []);
 
@@ -180,10 +212,11 @@ function ProjectCard({
 			) : null}
 			<div className="project-card__meta">
 				<span>
-					{new Date(repo.updated_at).toLocaleDateString(undefined, {
-						month: "short",
-						year: "numeric",
-					})}
+					{metaLabel ??
+						new Date(repo.updated_at).toLocaleDateString(undefined, {
+							month: "short",
+							year: "numeric",
+						})}
 				</span>
 			</div>
 		</a>
@@ -248,23 +281,28 @@ export default function ProjectsCarousel({
 				</a>
 			</div>
 
-			{loading ? (
-				<p className="font-mono text-sm text-white/40">Loading repos…</p>
-			) : error || repos.length === 0 ? (
-				<p className="font-mono text-sm text-white/40">
-					Couldn’t load GitHub repos right now.
-				</p>
-			) : (
-				<div className="project-grid">
-					{repos.map((repo) => (
+			<div className="project-grid">
+				<ProjectCard
+					repo={KURBZY_PRODUCT}
+					kind="product"
+					metaLabel="Live product"
+				/>
+				{loading ? (
+					<p className="font-mono text-sm text-white/40">Loading repos…</p>
+				) : error || repos.length === 0 ? (
+					<p className="font-mono text-sm text-white/40">
+						Couldn’t load GitHub repos right now.
+					</p>
+				) : (
+					repos.map((repo) => (
 						<ProjectCard
 							key={repo.id}
 							repo={repo}
 							kind={classifyRepo(repo)}
 						/>
-					))}
-				</div>
-			)}
+					))
+				)}
+			</div>
 		</section>
 	);
 }
