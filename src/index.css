@@ -669,11 +669,25 @@ section[id] {
 	color: rgba(255, 255, 255, 0.92);
 }
 
-.edu-timeline__body p {
+.edu-timeline__degree {
 	margin: 0.4rem 0 0;
 	font-size: 14px;
 	line-height: 1.5;
 	color: rgba(255, 255, 255, 0.5);
+}
+
+.edu-timeline__focus {
+	margin: 0.45rem 0 0;
+	font-family: var(--font-mono);
+	font-size: 13px;
+	line-height: 1.5;
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.edu-timeline__focus > span {
+	margin-right: 0.35rem;
+	font-weight: 600;
+	color: #5ee6a8;
 }
 
 .skills-board {

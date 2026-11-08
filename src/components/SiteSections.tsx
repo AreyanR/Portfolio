@@ -125,15 +125,17 @@ const JOBS: Job[] = [
 
 const EDUCATION = [
 	{
+		school: "University of California, Irvine",
+		when: "2026 - 2027",
+		detail: "Master of Engineering in Mechanical & Aerospace Engineering",
+		focus: "Autonomous & Intelligent Machines & Systems",
+		current: true,
+	},
+	{
 		school: "University of Oregon",
 		when: "2021 - 2025",
 		detail: "Bachelor of Science in Computer Science",
-	},
-	{
-		school: "UC Irvine",
-		when: "2026 - 2027",
-		detail: "Master of Engineering in Mechanical & Aerospace Engineering",
-		current: true,
+		focus: "Artificial Intelligence and Machine Learning",
 	},
 ];
 
@@ -316,7 +318,12 @@ export function EducationSection() {
 						<div className="edu-timeline__body">
 							<span className="edu-timeline__when">{item.when}</span>
 							<h3>{item.school}</h3>
-							{item.detail ? <p>{item.detail}</p> : null}
+							{item.detail ? <p className="edu-timeline__degree">{item.detail}</p> : null}
+							{item.focus ? (
+								<p className="edu-timeline__focus">
+									<span aria-hidden>&gt;</span> Focus in {item.focus}
+								</p>
+							) : null}
 						</div>
 					</li>
 				))}
