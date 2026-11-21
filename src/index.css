@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* smooth page change between the portfolio and the write-up (cross-document view transition; browsers without it
+   just navigate) */
+@view-transition {
+	navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 380ms;
+	animation-timing-function: ease;
+}
+@media (prefers-reduced-motion: reduce) {
+	@view-transition {
+		navigation: none;
+	}
+}
+
 @theme {
 	--font-mono: "IBM Plex Mono", ui-monospace, monospace;
 	--font-sans: "Barlow", system-ui, sans-serif;

@@ -17,6 +17,7 @@ const PROJECT_ORDER = [
 ];
 
 const PROJECT_TECHNOLOGIES: Record<string, string[]> = {
+	"comma.ai Compression Challenge": ["Python", "PyTorch", "Machine Learning", "Range coding"],
 	Kurbzy: [
 		"Swift",
 		"SwiftUI",
@@ -70,7 +71,19 @@ const KURBZY_PRODUCT: Repo = {
 	updated_at: new Date().toISOString(),
 };
 
-type Kind = "product" | "game" | "simulation" | "research" | "tool" | "web";
+// the comma.ai challenge write-up lives on this site (comma/index.html), so it opens in the same tab
+const COMMA_PROJECT: Repo = {
+	id: -2,
+	name: "comma.ai Compression Challenge",
+	description:
+		"My entry to comma.ai's video compression challenge. It compresses one minute of dashcam video to 179.6 KB by storing only what comma's two neural networks need to see, for a score of 0.1682.",
+	html_url: `${import.meta.env.BASE_URL}comma/`,
+	language: "Python",
+	stargazers_count: 0,
+	updated_at: new Date().toISOString(),
+};
+
+type Kind = "product" | "challenge" | "game" | "simulation" | "research" | "tool" | "web";
 
 type Props = {
 	username?: string;
@@ -101,6 +114,7 @@ function classifyRepo(repo: Repo): Kind {
 
 const KIND_LABEL: Record<Kind, string> = {
 	product: "Product",
+	challenge: "Challenge",
 	game: "Game",
 	simulation: "Simulation",
 	research: "Research",
@@ -127,6 +141,13 @@ function KindIcon({ kind }: { kind: Kind }) {
 				<path d="M4.5 7.5 12 3l7.5 4.5v9L12 21l-7.5-4.5z" />
 				<path d="m4.5 7.5 7.5 4.4 7.5-4.4M12 12v9" />
 				<path d="m8.2 5.3 7.5 4.4" />
+			</svg>
+		),
+		challenge: (
+			<svg {...common}>
+				<path d="M8 4h8v4.5a4 4 0 0 1-8 0z" />
+				<path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 3.2M16 6h2.5a2.5 2.5 0 0 1-2.6 3.2" />
+				<path d="M12 12.5V16M9 20h6M10 16h4v4h-4z" />
 			</svg>
 		),
 		game: (
@@ -172,19 +193,21 @@ function ProjectCard({
 	repo,
 	kind,
 	metaLabel,
+	internal = false,
 }: {
 	repo: Repo;
 	kind: Kind;
 	metaLabel?: string;
+	internal?: boolean;
 }) {
 	const technologies = PROJECT_TECHNOLOGIES[repo.name] || (repo.language ? [repo.language] : []);
 
 	return (
 		<a
 			href={repo.html_url}
-			target="_blank"
-			rel="noreferrer"
-			aria-label={`${repo.name} — ${KIND_LABEL[kind]} — on GitHub`}
+			target={internal ? undefined : "_blank"}
+			rel={internal ? undefined : "noreferrer"}
+			aria-label={`${repo.name} — ${KIND_LABEL[kind]}${internal ? "" : " — on GitHub"}`}
 			className="project-card"
 		>
 			<div className="project-card__head">
@@ -193,7 +216,7 @@ function ProjectCard({
 				</span>
 				<span className="project-card__kind">{KIND_LABEL[kind]}</span>
 				<span className="project-card__arrow" aria-hidden>
-					↗
+					{internal ? "→" : "↗"}
 				</span>
 			</div>
 			<h3>{repo.name}</h3>
@@ -283,6 +306,7 @@ export default function ProjectsCarousel({
 			</div>
 
 			<div className="project-grid">
+				<ProjectCard repo={COMMA_PROJECT} kind="challenge" metaLabel="Nov 2026" internal />
 				<ProjectCard
 					repo={KURBZY_PRODUCT}
 					kind="product"

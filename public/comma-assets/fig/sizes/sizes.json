@@ -1,0 +1,22 @@
+{
+ "c24": {
+  "channels": 24,
+  "wrong_pair300": 84,
+  "missing_keys": 0
+ },
+ "c32": {
+  "channels": 32,
+  "wrong_pair300": 72,
+  "missing_keys": 0
+ },
+ "c48": {
+  "channels": 48,
+  "wrong_pair300": 38,
+  "missing_keys": 0
+ },
+ "c48q4": {
+  "channels": 48,
+  "wrong_pair300": 100,
+  "missing_keys": 0
+ }
+}

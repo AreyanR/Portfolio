@@ -26,6 +26,7 @@ export default defineConfig(({ command }) => ({
 		rollupOptions: {
 			input: {
 				main: path.resolve(__dirname, "index.html"),
+				comma: path.resolve(__dirname, "comma/index.html"),
 			},
 		},
 	},

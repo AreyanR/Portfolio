@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 const ABOUT_TEXT =
-	"I'm a Computer Science graduate from the University of Oregon, currently pursuing a Master of Engineering in Mechanical & Aerospace Engineering at UC Irvine, specializing in computer vision and machine learning with a focus on autonomous intelligent systems. Driven by pushing the boundaries of what technology can achieve, I aim to contribute to the next generation of automation by bridging software design with physical robotics.";
+	"I'm a Computer Science graduate from the University of Oregon, currently pursuing a Master of Engineering in Mechanical & Aerospace Engineering at UC Irvine, specializing in computer vision and machine learning with a focus on autonomous intelligent systems. Driven by pushing the boundaries of what technology can achieve, I aim to contribute to the next generation of automation by bridging software with robotics.";
 
 type Line =
 	| { type: "cmd"; text: string; cwd?: string }
