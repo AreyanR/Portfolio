@@ -1,0 +1,32 @@
+{
+ "8": {
+  "seg_part": 0.0446,
+  "wrong_pair300": 67,
+  "weights_kb": 49.3,
+  "epochs": 100
+ },
+ "6": {
+  "seg_part": 0.0484,
+  "wrong_pair300": 71,
+  "weights_kb": 36.4,
+  "epochs": 100
+ },
+ "5": {
+  "seg_part": 0.0494,
+  "wrong_pair300": 62,
+  "weights_kb": 29.8,
+  "epochs": 100
+ },
+ "4": {
+  "seg_part": 0.0581,
+  "wrong_pair300": 97,
+  "weights_kb": 22.9,
+  "epochs": 100
+ },
+ "8to5": {
+  "seg_part": 0.0605,
+  "wrong_pair300": 79,
+  "weights_kb": 29.8,
+  "epochs": 100
+ }
+}

@@ -1,0 +1,20 @@
+{
+ "8": {
+  "seg_part": 0.0228,
+  "wrong_pair300": 23,
+  "weights_kb": 49.0,
+  "epochs": 600
+ },
+ "8to5": {
+  "seg_part": 0.1025,
+  "wrong_pair300": 170,
+  "weights_kb": 29.4,
+  "epochs": 600
+ },
+ "5": {
+  "seg_part": 0.0293,
+  "wrong_pair300": 54,
+  "weights_kb": 29.5,
+  "epochs": 600
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "c24": {
+  "half": {
+   "h": 192,
+   "w": 256,
+   "channels": 24,
+   "shown": 19
+  },
+  "quarter": {
+   "h": 96,
+   "w": 128,
+   "channels": 48,
+   "shown": 19
+  },
+  "half2": {
+   "h": 192,
+   "w": 256,
+   "channels": 24,
+   "shown": 13
+  },
+  "full": {
+   "h": 384,
+   "w": 512,
+   "channels": 24,
+   "shown": 24
+  },
+  "segnet_wrong": 84
+ },
+ "c32": {
+  "half": {
+   "h": 192,
+   "w": 256,
+   "channels": 32,
+   "shown": 8
+  },
+  "quarter": {
+   "h": 96,
+   "w": 128,
+   "channels": 64,
+   "shown": 4
+  },
+  "half2": {
+   "h": 192,
+   "w": 256,
+   "channels": 32,
+   "shown": 9
+  },
+  "full": {
+   "h": 384,
+   "w": 512,
+   "channels": 32,
+   "shown": 22
+  },
+  "segnet_wrong": 72
+ }
+}
