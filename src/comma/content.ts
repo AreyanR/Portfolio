@@ -31,7 +31,7 @@ export const HOOK = "The archive does not store the video. It stores a map, six 
 export const INITIAL = {
 	p1: "The figure below walks through the codec step by step, from the original video to comma's score.",
 	video: "comma's video is one minute of dashcam footage, 1,200 frames at 20 per second, split into 600 pairs of consecutive frames.",
-	input: "Each pair is two frames, 50 ms apart. The rest of the walkthrough follows pair 300.",
+	input: "Each pair is two frames, 50 ms apart.",
 	targets:
 		"SegNet and PoseNet run once on the original video. For each pair they give a 384 × 512 class map of frame 2 and six motion values, which the model trains against and the archive stores.",
 	training:
