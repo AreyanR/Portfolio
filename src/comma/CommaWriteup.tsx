@@ -292,6 +292,14 @@ export default function CommaWriteup() {
 					{/* read time: 3,409 prose words at ~238 wpm + ~10 s for each of the 21 figures, counted on the page 2026-11-19 */}
 					<div className="font-mono text-[11px] tracking-[0.14em] text-white/45 uppercase">Nov 2026 · 20 min read</div>
 					<h1 className="mt-4 text-[2.25rem] leading-[1.05] font-bold tracking-tight text-balance sm:text-[3.25rem]">comma.ai Video Compression Challenge</h1>
+					<a
+						href="https://github.com/commaai/comma_video_compression_challenge/pull/155"
+						target="_blank"
+						rel="noreferrer"
+						className="mt-5 inline-flex items-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 font-mono text-[12px] text-white/70 transition-colors hover:border-white/40 hover:text-white"
+					>
+						PR submission ↗
+					</a>
 				</header>
 
 				<Section id="challenge" num="1." title="The challenge">
