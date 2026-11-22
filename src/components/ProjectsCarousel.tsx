@@ -17,7 +17,7 @@ const PROJECT_ORDER = [
 ];
 
 const PROJECT_TECHNOLOGIES: Record<string, string[]> = {
-	"comma.ai Compression Challenge": ["Python", "PyTorch", "Machine Learning", "Range coding"],
+	"comma.ai Compression Challenge": ["Python", "PyTorch", "Machine Learning", "Quantization", "Range coding"],
 	Kurbzy: [
 		"Swift",
 		"SwiftUI",

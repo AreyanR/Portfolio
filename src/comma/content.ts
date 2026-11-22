@@ -275,17 +275,17 @@ export const DEAD_ENDS: { group: string; items: string[] }[] = [
 
 export const PIPELINE = `0.mkv
   |
-  |-- 01 extract maps and poses
-  |-- 03 train the frame model
-  |-- 08 train the map coder
-  |-- 09 clean and recode the maps
-  |-- 07 retrain frame 1 and fit correction
-  \`-- 04 pack everything
+  |-- extract maps and poses
+  |-- train the frame model
+  |-- train the map coder
+  |-- clean and recode the maps
+  |-- retrain frame 1 and fit correction
+  \`-- pack everything
   |
   v
 archive.zip
   |
-  \`-- 05 inflate: render 1,200 frames`;
+  \`-- inflate: render 1,200 frames`;
 
 export const JOURNEY_TEXT =
 	"Nine upgrades reduced the score from {score:0.4537} to {score:0.1682}.";

@@ -262,7 +262,7 @@ export function BestWorstFig() {
 	);
 }
 
-/* 3.7 · map 175 before and after cleaning (make_cleaning_view.py, using 09_clean_maps.py's own helpers) ---- */
+/* 3.7 · map 175 before and after cleaning (make_cleaning_view.py, using clean_maps.py's own helpers) ---- */
 
 type CleanPx = { y: number; x: number; from: number; to: number; bits_before: number; bits_after: number };
 type CleanData = { map: number; before: { wrong: number; bits: number }; after: { wrong: number; bits: number }; changed: CleanPx[] };
@@ -646,7 +646,7 @@ export function TrainingFig({ bare }: { bare?: boolean }) {
 	);
 }
 
-/* G19 · the weights, as 04_pack.py writes them --------------------------- */
+/* G19 · the weights, as pack.py writes them --------------------------- */
 
 type WeightsData = {
 	five_bit_hist: number[];
@@ -719,7 +719,7 @@ export function WeightsFig() {
 					<Hist counts={d.eight_bit_hist} lo={-127} color="var(--pose)" label={`8-bit values · ${d.eight_bit_count.toLocaleString("en-US")} (frame 1's parts, biases, norms)`} />
 				</div>
 			)}
-			<Caption>weights.bin size at each step, then how often each whole number appears in the final archive, counted from what 04_pack.py writes.</Caption>
+			<Caption>weights.bin size at each step, then how often each whole number appears in the final archive, counted from what pack.py writes.</Caption>
 		</figure>
 	);
 }
@@ -902,7 +902,7 @@ export function RoundingFig() {
 /* 2 · training, drawn top to bottom with its two stages (replaces the ring on the page; TrainStagesDiagram and the
  * original TrainDiagram are kept). Stage 1 (600 epochs): every weight learns, graded by SegNet on frame 2 with wrong
  * pixels counted 10x. Stage 2 (500 epochs): the shared trunk and the frame 2 layer freeze; only frame 1's 11,235 weights
- * learn, graded by PoseNet on the pair (log of the squared motion error). Numbers from solution/02_model.py, 03_train.py.
+ * learn, graded by PoseNet on the pair (log of the squared motion error). Numbers from solution/frame_model.py, train_frame_model.py.
  * Images: pair 300 as the final model draws it. Plays stage 1 then stage 2 until a stage is clicked. */
 export function TrainFlowFig() {
 	const [stage, setStage] = useState<1 | 2>(1);
@@ -1072,7 +1072,7 @@ export function TrainFlowFig() {
 /* 2 · the training ring with its two stages. Same layout as TrainDiagram (kept below, unused) plus a stage switch:
  * stage 1 trains every weight against SegNet on frame 2 (wrong pixels counted 10x, 600 epochs), stage 2 freezes the
  * trunk and trains only frame 1's 11,235 weights against PoseNet (log of the squared motion error, 500 epochs).
- * Green = trains in this stage, grey = frozen. Numbers from solution/03_train.py and 02_model.py. */
+ * Green = trains in this stage, grey = frozen. Numbers from solution/train_frame_model.py and frame_model.py. */
 export function TrainStagesDiagram() {
 	const [stage, setStage] = useState<1 | 2>(1);
 	const one = stage === 1;
@@ -1407,7 +1407,7 @@ function GradeFlip() {
 	);
 }
 
-/* Section 4 · the frame model, drawn as a U (from solution/02_model.py) --------------------
+/* Section 4 · the frame model, drawn as a U (from solution/frame_model.py) --------------------
  * Block height = resolution (384, 192, 96 rows), block width = channels. Weight counts per part
  * add up to 64,358: shrink 4,480 · 4 corrections 38,912 · grow back 6,816 · frame 2 head 2,915 · frame 1 head 11,235.
  */
@@ -1424,7 +1424,7 @@ function T({ x, y, children, size = 10.5, anchor = "middle", color = "rgba(255,2
 	);
 }
 
-/* the frame model's drawing (02_model.py), shared by ModelDiagram and FinalPipelineFig; viewBox 0 0 860 440 */
+/* the frame model's drawing (frame_model.py), shared by ModelDiagram and FinalPipelineFig; viewBox 0 0 860 440 */
 function ModelDiagramSvg(props: { x?: number; y?: number; width?: number; height?: number; className?: string }) {
 	const pink = { fill: "rgba(240,171,252,0.2)", stroke: "rgba(240,171,252,0.85)" };
 	const grey = { fill: "rgba(255,255,255,0.08)", stroke: "rgba(255,255,255,0.5)" };
@@ -1556,7 +1556,7 @@ export function ModelDiagram() {
 				<ModelDiagramSvg className="block w-full min-w-[640px]" />
 			</div>
 			<Caption>
-				The frame model in <code className="cw-code">02_model.py</code>, 64,358 weights. Block height is the resolution, block width the number of channels. Both frames are 384×512 and get stretched to
+				The frame model in <code className="cw-code">frame_model.py</code>, 64,358 weights. Block height is the resolution, block width the number of channels. Both frames are 384×512 and get stretched to
 				874×1164 for comma's grader.
 			</Caption>
 		</figure>
@@ -1646,7 +1646,7 @@ type PoseErrData = { err_off: number[]; err_on: number[]; bytes: number };
 
 /* 3.3 · the four shared patterns and how one pair mixes them. mix_33.json from writeup/build/make_correction_v1.py: the
  * correction 3.3 fitted (the 0.3076 codec's correction.bin, 4,728 B; 3.4 only changed the lossless map coder), its 12 x 16 RGB patterns (already times the strength) and every pair's four amounts. Drawn at their real size,
- * 128 = no change, stretched smoothly like 05_inflate.py's bilinear stretch. */
+ * 128 = no change, stretched smoothly like inflate.py's bilinear stretch. */
 type MixData = { patterns: number[][][][]; amounts: number[][] };
 const MIX_PAIR = 300;
 
@@ -1816,7 +1816,7 @@ export function CorrectionDial() {
 }
 
 /* 3.3 · turn the correction yourself. dial.json + dial_<s>.jpg from writeup/build/make_correction_dial.py: the final
- * correction added at strength s (0 = off, 1 = as shipped, up to 1.5), exactly as 05_inflate.py adds it; pose part over all
+ * correction added at strength s (0 = off, 1 = as shipped, up to 1.5), exactly as inflate.py adds it; pose part over all
  * 600 pairs (GPU judges, a hair above comma's CPU numbers) and pair 300's frame 1 at each s. */
 type DialData = { strengths: number[]; rows: { s: number; pose_part: number }[] };
 
@@ -1899,7 +1899,7 @@ export function DialFig() {
 /* 3.4 and 3.5 · what the map coder reads to guess one pixel: real maps of the car's top edge stacked like cards
  * (maps 295-300 around row 181 col 338, context_pixel.json), the "?" on top. Outlined cells / lines are what it reads.
  * 4 hints (3.1) and 8 hints (3.4): old_0.3076/06_map_encoder.py describe_neighbours / describe_more_neighbours.
- * Neural (3.5): solution/06_map_encoder.py NEIGHBOURS (30 cells within 4, already decoded) + MAPS_BACK = 5 earlier maps,
+ * Neural (3.5): solution/map_encoder.py NEIGHBOURS (30 cells within 4, already decoded) + MAPS_BACK = 5 earlier maps,
  * each seen through a ~31 x 31 window (stride-2 conv, then dilation 1, 2, 4), wider than the 9 x 9 patch drawn. */
 
 type StackData = Record<"now" | "prev" | "prev2" | "prev3" | "prev4" | "prev5", number[][]>;
@@ -2846,7 +2846,7 @@ export function CleanFramesFig() {
 
 export function FilterSnapFig() {
 	// one real 3 x 3 filter of the final model (out/stage_seg.pt, shrink1 output 3, looking at the road grid), as trained
-	// and snapped to its row's step (04_pack's rule): 8-bit step 0.0241, 5-bit step 0.1928
+	// and snapped to its row's step (pack.py's rule): 8-bit step 0.0241, 5-bit step 0.1928
 	const FILTERS = [
 		{ name: "as trained", note: "9 different values", v: [0.096, 0.103, 0.269, 0.24, 0.426, 0.453, -0.096, 0.129, -0.096] },
 		{ name: "8-bit", note: "almost the same", v: [0.096, 0.096, 0.265, 0.241, 0.434, 0.458, -0.096, 0.12, -0.096] },
@@ -2917,7 +2917,7 @@ export function FiveBitFig() {
 }
 
 
-/* §2 · the model inside the codec, as written in 02_model.py (FrameModel, the same shape in every version since): the map
+/* §2 · the model inside the codec, as written in frame_model.py (FrameModel, the same shape in every version since): the map
  * goes in as 7 grids (5 classes + 2 position), shrink1 halves it into 32 grids, shrink2 quarters it into 64, four
  * corrections run there, then it is enlarged twice back to full size, with shrink1's half-size grids glued back on, and
  * mixed into 3 colours. Block height = picture size, block width = grids. */
@@ -2975,7 +2975,7 @@ export function ModelShapeFig() {
 }
 
 /* 3.8 · choosing the bit count: the final 32-grid seg model trained with the rounding from the first step at 8 / 6 / 5 / 4
- * bits, 100 epochs each (writeup/build/qat_bits.py + qat_wrong_png.py, run 2026-11-16 with solution/03_train unchanged
+ * bits, 100 epochs each (writeup/build/qat_bits.py + qat_wrong_png.py, run 2026-11-16 with solution/train_frame_model unchanged
  * except the step count). Pair 300 near the horizon, the real map dimmed, SegNet's mistakes in red (drawn larger).
  * weights_kb = entropy size of the frame-2 weights at that bit count. */
 
@@ -3019,7 +3019,7 @@ export function BitsSliderFig() {
 }
 
 /* 3.8 · one model, 8-bit vs 5-bit, stepped through with back / next (writeup/build/qat_bits.py, round_after.py, qat_wrong_png.py;
- * the final 32-grid seg stage, 600 epochs like the final run, solution/03_train unchanged):
+ * the final 32-grid seg stage, 600 epochs like the final run, solution/train_frame_model unchanged):
  *   1. trained with 8-bit rounding                      (qat_out/b8_e600)
  *   2. the same 8-bit weights rounded to 5-bit after training, no retraining (round_after.py, qat_out/b8to5_e600)
  *   3. 5-bit from the first step = the final run's own stage_seg.pt, scored the same way (qat_out/b5_e600)
@@ -3205,8 +3205,8 @@ export function TieStepsFig() {
 	);
 }
 
-/* 4 · the final pipeline drawn out: scripts (solution/01-09, times from solution/out/run_all.log) feed the four archive
- * files (bytes from ARCHIVE_FILES / report.txt), 04 packs them, 05 inflates on comma's side; score row at the bottom
+/* 4 · the final pipeline drawn out: scripts (solution/, times from solution/out/run_all.log) feed the four archive
+ * files (bytes from ARCHIVE_FILES / report.txt), pack.py packs them, inflate.py inflates on comma's side; score row at the bottom
  * ("was" = the 0.3076 codec, FINAL.tree). Boxes inside archive.zip are drawn to scale by bytes. */
 export function FinalPipelineFig() {
 	const W = 680, H = 392;
@@ -3215,11 +3215,11 @@ export function FinalPipelineFig() {
 	const mono = { fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" } as const;
 	// one short line under each script: what it makes, nothing more
 	const steps: { y: number; h: number; c: string; name: string; sub: string[] }[] = [
-		{ y: 40, h: 40, c: "rgba(255,255,255,0.45)", name: "01 ask the judges", sub: ["maps + motion"] },
-		{ y: 96, h: 40, c: SEG, name: "03 train frame model", sub: ["draws both frames"] },
-		{ y: 152, h: 40, c: SIZE, name: "08 train map coder", sub: ["predicts map pixels"] },
-		{ y: 208, h: 40, c: SIZE, name: "09 clean the maps", sub: ["fewer bits per map"] },
-		{ y: 264, h: 40, c: POSE, name: "07 frame 1 + correction", sub: ["corrects frame 1's motion"] },
+		{ y: 40, h: 40, c: "rgba(255,255,255,0.45)", name: "ask the judges", sub: ["maps + motion"] },
+		{ y: 96, h: 40, c: SEG, name: "train frame model", sub: ["draws both frames"] },
+		{ y: 152, h: 40, c: SIZE, name: "train map coder", sub: ["predicts map pixels"] },
+		{ y: 208, h: 40, c: SIZE, name: "clean the maps", sub: ["fewer bits per map"] },
+		{ y: 264, h: 40, c: POSE, name: "frame 1 + correction", sub: ["corrects frame 1's motion"] },
 	];
 	// archive.zip interior: one box per file. Every box gets room for its two lines (34), and the rest of the height is
 	// shared by the square root of each file's size above the smallest, so bigger files read bigger without the small
@@ -3246,7 +3246,7 @@ export function FinalPipelineFig() {
 	);
 	return (
 		<figure className="my-8">
-			<svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="The final pipeline: scripts 01, 03, 08, 09 and 07 make the four archive files, 04 packs them into a 179,609-byte archive, 05 inflates it into 1,200 frames. Score 0.1682." {...mono}>
+			<svg viewBox={`0 0 ${W} ${H}`} className="block w-full" role="img" aria-label="The final pipeline: five scripts make the four archive files, pack.py packs them into a 179,609-byte archive, inflate.py inflates it into 1,200 frames. Score 0.1682." {...mono}>
 				<defs>
 					<marker id="fp-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
 						<path d="M2 1L8 5L2 9" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth={1.5} />
@@ -3277,7 +3277,7 @@ export function FinalPipelineFig() {
 				{link(4, 1, POSE, -4)}
 				{link(4, 2, POSE)}
 				{link(0, 3, "rgba(255,255,255,0.45)", 12)}
-				<text x={AX - 10} y={44} fontSize={11} fill="rgba(255,255,255,0.6)">04 pack → archive.zip</text>
+				<text x={AX - 10} y={44} fontSize={11} fill="rgba(255,255,255,0.6)">pack → archive.zip</text>
 				<rect x={AX - 10} y={AY - 10} width={AW + 20} height={AH + 20} rx={5} fill="none" stroke="rgba(255,255,255,0.4)" />
 				{boxes.map((f) => (
 					<g key={f.n}>
@@ -3289,7 +3289,7 @@ export function FinalPipelineFig() {
 				<text x={AX - 10} y={AY + AH + 30} fontSize={11} fill="rgba(255,255,255,0.6)">179,609 B total</text>
 				<line x1={AX + AW + 10} y1={192} x2={518} y2={192} stroke="rgba(255,255,255,0.5)" markerEnd="url(#fp-arrow)" />
 				<rect x={520} y={170} width={140} height={44} rx={4} fill="none" stroke="rgba(255,255,255,0.4)" />
-				<text x={530} y={188} fontSize={11.5} fill="#fff">05 inflate</text>
+				<text x={530} y={188} fontSize={11.5} fill="#fff">inflate</text>
 				<text x={530} y={203} fontSize={10} fill={dim}>archive + code only</text>
 				<line x1={590} y1={214} x2={590} y2={246} stroke="rgba(255,255,255,0.5)" markerEnd="url(#fp-arrow)" />
 				<rect x={520} y={248} width={140} height={34} rx={4} fill="none" stroke="rgba(255,255,255,0.4)" />

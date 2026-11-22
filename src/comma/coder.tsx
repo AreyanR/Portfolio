@@ -4,7 +4,7 @@ import { A, Btn, MONO, SEG_CLASSES, SegLegend } from "./ui";
 /*
  * What each version of the map coder looks at to guess one pixel. All three go one diagonal at a time.
  * Upgrade 1 and 4: comma-study/my-comma-codec/submission/old_0.3076/06_map_encoder.py (describe_neighbours, describe_more_neighbours).
- * Upgrade 5: solution/06_map_encoder.py (MapGuesser, NEIGHBOURS, MAPS_BACK = 5).
+ * Upgrade 5: solution/map_encoder.py (MapGuesser, NEIGHBOURS, MAPS_BACK = 5).
  * The grid is a real 30 x 14 pixel crop of maps 295-300 (one cell = one pixel).
  */
 
