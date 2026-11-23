@@ -107,6 +107,24 @@ function VideoStripFig() {
 	);
 }
 
+/* step 4 · pair 300 learning through the real seg stage (vid/seg_learning.mp4 + .json: snapshot steps, each held `hold` frames) */
+function LearningVideo() {
+	const [info, setInfo] = useState<{ fps: number; hold: number; steps_per_epoch: number; steps: number[] } | null>(null);
+	useEffect(() => {
+		fetch(A("vid/seg_learning.json"))
+			.then((r) => r.json())
+			.then(setInfo)
+			.catch(() => setInfo(null));
+	}, []);
+	const badge = (t: number) => {
+		if (!info) return "";
+		const i = Math.min(info.steps.length - 1, Math.floor((t * info.fps) / info.hold));
+		const step = info.steps[i]!;
+		return `epoch ${Math.floor(step / info.steps_per_epoch)}`;
+	};
+	return <VideoFig src="seg_learning.mp4" labels={["model's frame 2", "SegNet on it"]} framesPerPair={1} bigLabels hidePair badge={badge} />;
+}
+
 export function HowItWorksFig({ video, input, targets, training, inflation, compared, scoreFig }: { video: ReactNode; input: ReactNode; targets: ReactNode; training: ReactNode; inflation: ReactNode; compared: ReactNode; scoreFig?: ReactNode }) {
 	const d = useFig();
 	const p = d?.demo;
@@ -142,7 +160,7 @@ export function HowItWorksFig({ video, input, targets, training, inflation, comp
 			<Step n={4} title="Train and pack" text={training}>
 				<TrainLoopsFig />
 				<div className="mt-8">
-					<VideoFig src="seg_learning.mp4" labels={["model's frame 2", "SegNet on it"]} framesPerPair={1} bigLabels hidePair />
+					<LearningVideo />
 				</div>
 			</Step>
 			<Step n={5} title="Inflate" text={inflation}>
@@ -474,6 +492,7 @@ export function VideoFig({
 	stacked = false,
 	bigLabels = false,
 	hidePair = false,
+	badge,
 }: {
 	src: string;
 	labels: string[];
@@ -483,6 +502,7 @@ export function VideoFig({
 	stacked?: boolean; // panels on top of each other instead of side by side
 	bigLabels?: boolean; // larger panel labels, for the section 2 inflate video
 	hidePair?: boolean; // no pair counter, for the training video (one pair, many steps)
+	badge?: (t: number) => string; // corner text in place of the pair counter
 }) {
 	const ref = useRef<HTMLVideoElement>(null);
 	const [t, setT] = useState(0);
@@ -517,7 +537,7 @@ export function VideoFig({
 						{l}
 					</div>
 				))}
-				{!hidePair && <div className="pointer-events-none absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white/85 tabular-nums">pair {pair}</div>}
+				{(badge || !hidePair) && <div className="pointer-events-none absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white/85 tabular-nums">{badge ? badge(t) : `pair ${pair}`}</div>}
 			</div>
 			<div className="mt-2 flex items-center gap-3">
 				<PlayBtn playing={playing} onClick={() => (playing ? ref.current?.pause() : void ref.current?.play())} />
