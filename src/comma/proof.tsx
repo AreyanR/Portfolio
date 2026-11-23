@@ -442,133 +442,66 @@ export function StudyScoreFig() {
 /* 3 px wide on my frame. Counts match pairs.json (pair 300: 54 px).     */
 /* ------------------------------------------------------------------ */
 
-function loadImg(src: string) {
-	return new Promise<HTMLImageElement>((res, rej) => {
-		const im = new Image();
-		im.onload = () => res(im);
-		im.onerror = rej;
-		im.src = src;
-	});
-}
-
-/* all four pictures of one pair, loaded together and drawn at once so playing doesn't flash; red only on SegNet-on-mine */
-const PAIR_IMGS = ["real.jpg", "segreal.png", "made.jpg", "segmade.png"] as const;
-const pairCache = new Map<string, Promise<HTMLImageElement[]>>();
-function loadPair(id: string) {
-	let p = pairCache.get(id);
-	if (!p) {
-		p = Promise.all(PAIR_IMGS.map((f) => loadImg(A(`pairs/${id}_${f}`))));
-		pairCache.set(id, p);
-	}
-	return p;
-}
-/* where SegNet's label on my frame differs from the original's, computed once per pair (pixel indexes) */
-const wrongCache = new Map<string, Promise<number[]>>();
-function loadWrong(id: string) {
-	let p = wrongCache.get(id);
-	if (!p) {
-		p = loadPair(id).then((ims) => {
-			const W = 512, H = 384;
-			const t = document.createElement("canvas");
-			t.width = W;
-			t.height = H;
-			const tg = t.getContext("2d", { willReadFrequently: true })!;
-			tg.drawImage(ims[1]!, 0, 0);
-			const sa = tg.getImageData(0, 0, W, H).data;
-			tg.drawImage(ims[3]!, 0, 0);
-			const sb = tg.getImageData(0, 0, W, H).data;
-			const out: number[] = [];
-			for (let i = 0; i < W * H; i++) {
-				const q = i * 4;
-				if (sa[q] !== sb[q] || sa[q + 1] !== sb[q + 1] || sa[q + 2] !== sb[q + 2]) out.push(i);
-			}
-			return out;
-		});
-		wrongCache.set(id, p);
-	}
-	return p;
-}
-/* load every 4th pair in the background, 6 at a time, so playing never waits on the network */
-let preloading = false;
-function preloadAll() {
-	if (preloading) return;
-	preloading = true;
-	const ids = Array.from({ length: 150 }, (_, i) => String(i * 4).padStart(3, "0"));
-	let k = 0;
-	const next = (): Promise<void> => (k < ids.length ? loadWrong(ids[k++]!).catch(() => []).then(next) : Promise.resolve());
-	for (let j = 0; j < 6; j++) void next();
-}
-
-function PairQuad({ id, next, show }: { id: string; next: string; show: boolean }) {
-	const refs = [useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null)];
-	useEffect(() => {
-		let dead = false;
-		Promise.all([loadPair(id), loadWrong(id)])
-			.then(([ims, wrongPx]) => {
-				if (dead) return;
-				const W = 512, H = 384;
-				ims.forEach((im, k) => {
-					const c = refs[k]!.current;
-					if (!c) return;
-					if (c.width !== W) {
-						c.width = W;
-						c.height = H;
-					}
-					const g = c.getContext("2d")!;
-					g.imageSmoothingEnabled = k % 2 === 0;
-					g.fillStyle = "#000";
-					g.fillRect(0, 0, W, H);
-					g.globalAlpha = k === 3 && show ? 0.4 : 1;
-					g.drawImage(im, 0, 0, W, H);
-					g.globalAlpha = 1;
-					if (k === 3 && show) {
-						g.fillStyle = "#ff3c50";
-						for (const i of wrongPx) g.fillRect((i % W) - 1, Math.floor(i / W) - 1, 3, 3);
-					}
-				});
-				loadWrong(next).catch(() => {});
-			})
-			.catch(() => {});
-		return () => {
-			dead = true;
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [id, next, show]);
-	const labels = ["original frame 2", "SegNet on the original", "inflated frame 2", "SegNet on the inflated"];
-	return (
-		<div className="grid grid-cols-2 gap-2">
-			{labels.map((l, k) => (
-				<div key={k}>
-					<canvas ref={refs[k]} className="block aspect-[4/3] w-full rounded bg-black" style={{ imageRendering: k % 2 ? "pixelated" : undefined }} aria-label={`${l}, pair ${id}`} />
-					<div className="mt-1 font-mono text-[11px] text-white/50">{l}</div>
-				</div>
-			))}
-		</div>
-	);
-}
-
 export function DrawsFig({ data, pair, setPair }: { data: PairData | null; pair: number; setPair: (n: number) => void }) {
+	// real speed: two 2x2 videos (20 fps, one frame per pair), with and without the red changed pixels
 	const [playing, setPlaying] = useState(false);
 	const [show, setShow] = useState(true);
-	const shown = Math.min(596, Math.round(pair / 4) * 4);
-	const id = String(shown).padStart(3, "0");
+	const plain = useRef<HTMLVideoElement>(null);
+	const red = useRef<HTMLVideoElement>(null);
+	const refs = [useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null), useRef<HTMLCanvasElement>(null)];
+	const active = () => (show ? red.current : plain.current);
+	const draw = () => {
+		const v = active();
+		if (!v || v.readyState < 2) return;
+		refs.forEach((r, k) => {
+			const c = r.current;
+			if (!c) return;
+			if (c.width !== 512) {
+				c.width = 512;
+				c.height = 384;
+			}
+			c.getContext("2d")!.drawImage(v, (k % 2) * 512, Math.floor(k / 2) * 384, 512, 384, 0, 0, 512, 384);
+		});
+	};
+	const seek = (n: number) => {
+		for (const v of [plain.current, red.current]) if (v) v.currentTime = (n + 0.5) / 20;
+	};
 	useEffect(() => {
-		if (!playing) return;
-		preloadAll();
-		// step every 240 ms, but never before the next pair is loaded (no frozen or half-drawn frames)
-		let dead = false;
-		const to = (shown + 4) % 600;
-		const wait = new Promise((r) => window.setTimeout(r, 240));
-		Promise.all([wait, loadWrong(String(to).padStart(3, "0"))]).then(() => {
-			if (!dead) setPair(to);
-		}, () => {});
-		return () => {
-			dead = true;
+		seek(pair);
+		const v = active();
+		if (v) v.onseeked = draw;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [show]);
+	useEffect(() => {
+		const v = active();
+		const other = show ? plain.current : red.current;
+		if (!v) return;
+		if (!playing) {
+			v.pause();
+			return;
+		}
+		other?.pause();
+		void v.play();
+		let id = 0;
+		const tick = () => {
+			draw();
+			setPair(Math.min(599, Math.floor(v.currentTime * 20)));
+			id = requestAnimationFrame(tick);
 		};
-	}, [playing, shown, setPair]);
+		id = requestAnimationFrame(tick);
+		return () => {
+			cancelAnimationFrame(id);
+			v.pause();
+			if (other) other.currentTime = v.currentTime;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [playing, show]);
 	const wrong = data ? Math.round(data.seg[pair]! * PIXELS) : null;
+	const labels = ["original frame 2", "SegNet on the original", "inflated frame 2", "SegNet on the inflated"];
 	return (
 		<figure className="my-8">
+			<video ref={plain} src={A("vid/score_plain.mp4")} muted playsInline loop preload="auto" className="hidden" onLoadedData={() => { seek(pair); }} onSeeked={() => !show && draw()} />
+			<video ref={red} src={A("vid/score_red.mp4")} muted playsInline loop preload="auto" className="hidden" onLoadedData={() => { seek(pair); }} onSeeked={() => show && draw()} />
 			<div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 font-mono text-[12px]">
 				<span className="text-white/55">
 					pair <span className="text-white">{pair}</span> of 600{wrong !== null && <> · <span style={{ color: "#ff5a6e" }}>{wrong}</span> pixels changed</>}
@@ -579,7 +512,14 @@ export function DrawsFig({ data, pair, setPair }: { data: PairData | null; pair:
 					changed pixel
 				</label>
 			</div>
-			<PairQuad id={id} next={String((shown + 4) % 600).padStart(3, "0")} show={show} />
+			<div className="grid grid-cols-2 gap-2">
+				{labels.map((l, k) => (
+					<div key={k}>
+						<canvas ref={refs[k]} width={512} height={384} className="block aspect-[4/3] w-full rounded bg-black" style={{ imageRendering: k % 2 ? "pixelated" : undefined }} aria-label={l} />
+						<div className="mt-1 font-mono text-[11px] text-white/50">{l}</div>
+					</div>
+				))}
+			</div>
 			<div className="mt-3 flex items-center gap-2">
 				<PlayBtn playing={playing} onClick={() => setPlaying((p) => !p)} />
 				<input
@@ -592,6 +532,7 @@ export function DrawsFig({ data, pair, setPair }: { data: PairData | null; pair:
 					onChange={(e) => {
 						setPlaying(false);
 						setPair(Number(e.target.value));
+						seek(Number(e.target.value));
 					}}
 				/>
 			</div>

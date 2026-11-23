@@ -142,7 +142,7 @@ export function HowItWorksFig({ video, input, targets, training, inflation, comp
 			<Step n={4} title="Train and pack" text={training}>
 				<TrainLoopsFig />
 				<div className="mt-8">
-					<TrainingFig bare />
+					<VideoFig src="seg_learning.mp4" labels={["model's frame 2", "SegNet on it"]} framesPerPair={1} bigLabels hidePair />
 				</div>
 			</Step>
 			<Step n={5} title="Inflate" text={inflation}>
@@ -473,6 +473,7 @@ export function VideoFig({
 	caption,
 	stacked = false,
 	bigLabels = false,
+	hidePair = false,
 }: {
 	src: string;
 	labels: string[];
@@ -481,6 +482,7 @@ export function VideoFig({
 	caption?: ReactNode;
 	stacked?: boolean; // panels on top of each other instead of side by side
 	bigLabels?: boolean; // larger panel labels, for the section 2 inflate video
+	hidePair?: boolean; // no pair counter, for the training video (one pair, many steps)
 }) {
 	const ref = useRef<HTMLVideoElement>(null);
 	const [t, setT] = useState(0);
@@ -515,7 +517,7 @@ export function VideoFig({
 						{l}
 					</div>
 				))}
-				<div className="pointer-events-none absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white/85 tabular-nums">pair {pair}</div>
+				{!hidePair && <div className="pointer-events-none absolute right-2 bottom-2 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white/85 tabular-nums">pair {pair}</div>}
 			</div>
 			<div className="mt-2 flex items-center gap-3">
 				<PlayBtn playing={playing} onClick={() => (playing ? ref.current?.pause() : void ref.current?.play())} />
