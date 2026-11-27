@@ -26,7 +26,7 @@ const JOBS: Job[] = [
 		id: "kurbzy",
 		title: "Founder & Developer",
 		place: "Kurbzy | Orange County, CA",
-		when: "February 2025 - Present",
+		when: "February 2026 - Present",
 		commitment: "Part-Time",
 		bullets: [
 			"Developed Kurbzy, a full-stack iOS platform for discovering, posting, and claiming free hyper-local curbside giveaways.",
